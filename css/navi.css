@@ -1,0 +1,158 @@
+/**
+ * To the extent possible under law, the author(s) have dedicated all copyright 
+ * and related and neighboring rights to this software to the public domain 
+ * worldwide. This software is distributed without any warranty. 
+ *
+ * See <http://creativecommons.org/publicdomain/zero/1.0/> for a copy of the 
+ * CC0 Public Domain Dedication.
+**/
+
+ul{
+	list-style-type: none;
+	display: inline;
+}
+li{
+	display: inline;
+}
+.nav{
+	font-size:0.9em;
+}
+.leftbox{
+	display: block;
+	margin: 20px 30px 10px 20px;
+	border: 1px solid #2F6FAB;
+	padding: 5px;
+	width: 90%;
+}
+.rightbox{
+	text-align: right;
+	position: absolute;
+	top: 1px;
+	right: 3px;
+}
+.leftbox .nav-item{
+	display: block;
+}
+.nav-submenu-item+.nav-submenu-item:before, .rightbox .nav-item+.nav-item:before{
+  content: ' | ';
+}
+
+/* Mobile navigation */
+.nav-mobile {
+	display:none;
+	cursor:pointer;
+	position:absolute;
+	top:0;
+	right:0;
+	background:#F3F3F3 url(pic/nav.svg) no-repeat center center;
+	background-size:18px;
+	height:50px;
+	width:50px;
+}
+.nav-click {
+	display:none;
+	position:absolute;
+	top:0;
+	right:0;
+	border-left:1px solid #000;
+	height:49px;
+	width:50px;
+	cursor:pointer;
+}
+.nav-click i {
+	display:block;
+	height:48px;
+	width:48px;
+	background:url(pic/drop.svg) no-repeat center center;
+	background-size:20px;
+}
+.nav-click:hover {
+	background-color:#9F9F9F;
+}
+.nav-rotate {
+	-webkit-transform:rotate(180deg);
+	-moz-transform:rotate(180deg);
+	-ms-transform:rotate(180deg);
+	-o-transform:rotate(180deg);
+	transform:rotate(180deg);
+}
+
+/*------------------------------------*\
+    Media Queries
+\*------------------------------------*/
+
+@media only screen and (max-width: 1024px){
+	li{
+		display: block;
+	}
+	.nav {
+		position:relative;
+		display:inline-block;
+		font-size:15px;
+		font-weight:700;
+		background:#F3F3F3;
+		border-bottom: 1px solid #000;
+		width:100%;
+		padding:50px 0 0;
+		margin: 0;
+	}
+	.nav a{
+		color: #000;
+	}
+	.nav a:hover{
+		text-decoration: none;
+	}
+	.nav-mobile {
+		display:block;
+	}
+	.leftbox{
+		margin: 0px;
+		border: none;
+		padding: 0px;
+		width: 100%;
+	}
+	.rightbox{
+		position: relative;
+		text-align: left;
+	}	
+	.nav-list {
+		display:none;
+	}
+	.nav-click {
+		display:block;
+	}
+	.nav-item {
+		width:100%;
+		position:relative;		
+	}
+	.nav-item:hover .nav-submenu {
+		display:none;
+	}
+	.nav-item span {
+		display:block;
+		padding:15px 20px;
+		background:#F3F3F3;
+		border-top: 1px solid #000;
+	}
+	.nav-item span:hover {
+		background:#9F9F9F;
+	}
+	.nav-submenu {
+		position:static;
+		width:100%;
+		display:none;
+		left: 0;
+	}
+	.nav-submenu-item a {
+		background:#E0E0E0;
+		border-top:1px solid #000;
+		display:block;
+		padding:15px 30px;
+	}
+	.nav-submenu-item a:hover{
+		background:#9F9F9F;
+	}
+	.nav-submenu-item+.nav-submenu-item:before, .rightbox .nav-item+.nav-item:before{
+		content: '';
+	}
+}

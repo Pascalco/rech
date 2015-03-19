@@ -1,0 +1,237 @@
+/**
+ * To the extent possible under law, the author(s) have dedicated all copyright 
+ * and related and neighboring rights to this software to the public domain 
+ * worldwide. This software is distributed without any warranty. 
+ *
+ * See <http://creativecommons.org/publicdomain/zero/1.0/> for a copy of the 
+ * CC0 Public Domain Dedication.
+**/
+
+*,*:after,*:before {
+	margin:0;
+	padding:0;
+}
+
+body{
+	font-family: Arial, sans-serif;
+}
+
+a{
+	text-decoration: none;
+	color: #0645AD;
+}
+
+a:hover{
+	color: #333;
+	text-decoration: underline;
+}
+
+a.inactive{
+	color: #000;
+	font-weight: bold;
+}
+
+a.inactive:hover{
+	text-decoration: none;
+}
+
+h3{
+	font-family: Calibri, Arial, sans-serif;
+	margin: 0px;
+}
+
+td{
+	padding: 3px;
+	word-wrap: break-word;
+}
+
+img{
+	border: none;
+}
+
+form{
+	display: inline;
+}
+
+#main{
+	border-collapse: collapse;
+	width: 98%;
+}
+
+#main tr{
+	background-color: #F3F3F3;
+	vertical-align:top;
+}
+
+#main tr:not(.trhead):nth-of-type(odd){
+	background-color: #FFF;
+}
+
+#main tr:not(.rightside):not(.trhead):hover{
+	background-color: #FFCE7B;
+}
+
+#main .trhead{
+	background-color: #333;
+	color: #FFF;
+	font-weight: bold;
+	text-align: center;
+}
+
+#main .rightside{
+	background-color: #FFF;
+	text-align: right;
+}
+
+#show{
+	width: 100%;
+}
+
+#load{
+	display: block;
+	text-align: center;
+	width: 100%;
+	margin-top: 50px;
+}
+
+.diff{
+	padding: 10px;
+    margin-left:auto; 
+    margin-right:auto;
+}
+
+.diff .diff-otitle, .diff  .diff-ntitle{
+	display: none;
+}
+
+.diff .diff-addedline{
+	background-color: #D8ECFF;
+}
+
+.diff .diff-deletedline{
+	background-color: #FEEEC8;
+}
+
+.diff ins{
+	text-decoration: none;
+}
+
+.diffview, .edit{
+	padding: 5px;
+}
+
+.gray{
+	color: #888;
+}
+.red{
+	color: #CC4444;
+}
+.green{
+	color: #55AA55;
+}
+.blue{
+	color: #0174DF;
+}
+.reload{
+	color: #000;
+}
+
+#hovercard{
+	display:none;
+	text-align:center;
+	padding:10px;
+	position:fixed;
+	left:20%;
+	width:60%;
+	background-color:#FFF;
+	border:1px solid #aaa;
+	border-radius:3px;
+	background-color:#FFF;
+	-webkit-box-shadow:rgba(0,0,0,0.4) 0px 3px 4px;
+	box-shadow:rgba(0,0,0,0.4) 0px 3px 4px;
+	min-height:100px;
+}
+
+#hovercard2{
+	display:none;
+	text-align:center;
+	padding:10px;
+	position: absolute;
+	background-color:#FFF;
+	border:1px solid #aaa;
+	border-radius:10px;
+	background-color:#FFF;
+	-webkit-box-shadow:rgba(0,0,0,0.4) 0px 3px 4px;
+	box-shadow:rgba(0,0,0,0.4) 0px 3px 4px;
+}
+
+.warning{
+	margin: 0px 20px 10px 20px;
+	border: 1px solid #111;
+	background-color:#F6D8CE;
+	padding: 5px;
+	width: 90%;
+}
+
+.nlb{
+	white-space:nowrap;
+}
+
+
+@media only screen and (max-width:1024px) {
+	html {
+		-ms-text-size-adjust: 150%;
+	}
+	table, td, tr { 
+		display: block;
+		
+	}
+	#main{
+		width: auto;
+	}
+	
+	.trhead{ 
+		display: none;
+	}
+		
+	tr:not(.rightside){
+		border: 1px solid #ccc;
+	}	
+	td {
+		border: none;
+	}
+	
+	a.green, a.red, a.blue, a.reload{
+		text-align: center;
+		display: inline-block;
+		padding: 5px 3px;
+		color: #FFF;
+		border-radius: 5px;
+		margin: 0px 5px;
+	}
+	a.blue{
+		background-color: #A9BCF5;
+		width: 28%;
+	}
+	a.green{
+		background-color: #55AA55;
+		width: 28%;
+	}
+	a.red{
+		background-color: #CC4444;
+		width: 28%;
+	}
+	a.reload{
+		background-color: #000;
+		width: 30%;
+	}
+	#hovercard{
+		padding: 10px;
+		left: 5%;
+		width: 90%;
+		min-height:50px;
+	}
+	.nlb{
+		white-space:normal;
+	}
+}
