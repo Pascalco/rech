@@ -48,7 +48,7 @@ function urlFormatter($p,$val){
 	$commonsProperties = array("P14","P15","P18","P41","P94","P109","P117","P154","P158","P181","P207","P242","P367","P491","P692","P948","P996","P1442","P1543","P1621");
 	$urlProperties = array("P854","P856","P857","P953","P963","P973","P1019","P1065","P1324","P1325","P1348","P1401","P1421","P1482","P1581","P1713");
 	if (array_key_exists($p,$regexP)){
-		if (preg_match('/'.$regexP[$p].'/',$val,$match))$comment = '';
+		if (preg_match('/^'.$regexP[$p].'$/',$val,$match))$comment = '';
 		else $comment = ' <span class="red"><small>format violation</small></span>';
 	}
 	if (array_key_exists($p,$urls)){

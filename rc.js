@@ -157,7 +157,7 @@ function checkScript(el,lang,term){
 	}else if ($.inArray(lang,nonlatin)>-1){
 		var filter = /[a-z]/i;
 	}else{
-		var filter = /.*/i;
+		var filter = / /i;
 	}
 	if (filter.test(term)){
 		el.append(' <span class="red"><small>wrong script</small></span>');
