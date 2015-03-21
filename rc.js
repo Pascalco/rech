@@ -150,7 +150,7 @@ function checkLabelSitelink(el,qid,lang,label){
  * @return void.
 */
 function checkScript(el,lang,term){
-	var latin = ['af','ak','an','ang','arn','ast','ay','az','bar','bcl','bi','bm','br','bs','ca','cbk-zam','ceb','ch','chm','cho','chy','co','crh-latn','cs','csb','cy','da','de','diq','dsb','ee','eml','en','eo','es','et','eu','ff','fi','fj','fo','fr','frp','frr','fur','fy','ga','gd','gl','gn','gsw','gv','ha','haw','ho','hr','hsb','ht','hu','hz','id','ie','ig','ik','ilo','io','is','it','jbo','jv','kab','kg','ki','kj','kl','kr','ksh','ku','kw','la','lad','lb','lg','li','lij','lmo','ln','lt','lv','map-bms','mg','mh','mi','min','ms','mt','mus','mwl','na','nah','nan','nap','nb','nds','nds-nl','ng','nl','nn','nov','nrm','nv','ny','oc','om','pag','pam','pap','pcd','pdc','pih','pl','pms','pt','pt-br','qu','rm','rn','ro','roa-tara','rup','rw','sc','scn','sco','se','sg','sgs','sk','sl','sm','sn','so','sq','sr-el','ss','st','stq','su','sv','sw','szl','tet','tk','tl','tn','to','tpi','tr','ts','tum','tw','ty','uz','ve','vec','vi','vls','vo','vro','wa','war','wo','xh','yo','za','zea','zu'];
+	var latin = ['af','ak','an','ang','arn','ast','ay','az','bar','bcl','bi','bm','br','bs','ca','cbk-zam','ceb','ch','chm','cho','chy','co','crh-latn','cs','csb','cy','da','de','diq','dsb','ee','eml','en','en-gb','en-ca','eo','es','et','eu','ff','fi','fj','fo','fr','frp','frr','fur','fy','ga','gd','gl','gn','gsw','gv','ha','haw','ho','hr','hsb','ht','hu','hz','id','ie','ig','ik','ilo','io','is','it','jbo','jv','kab','kg','ki','kj','kl','kr','ksh','ku','kw','la','lad','lb','lg','li','lij','lmo','ln','lt','lv','map-bms','mg','mh','mi','min','ms','mt','mus','mwl','na','nah','nan','nap','nb','nds','nds-nl','ng','nl','nn','nov','nrm','nv','ny','oc','om','pag','pam','pap','pcd','pdc','pih','pl','pms','pt','pt-br','qu','rm','rn','ro','roa-tara','rup','rw','sc','scn','sco','se','sg','sgs','sk','sl','sm','sn','so','sq','sr-el','ss','st','stq','su','sv','sw','szl','tet','tk','tl','tn','to','tpi','tr','ts','tum','tw','ty','uz','ve','vec','vi','vls','vo','vro','wa','war','wo','xh','yo','za','zea','zu'];
 	var nonlatin = ['ab','am','arc','ar','arz','as','ba','be','be-tarask','bg','bh','bn','bo','bpy','bxr','chr','ckb','cr','cv','dv','dz','el','fa','gan','glk','got','gu','hak','he','hi','hy','ii','iu','ja','ka','kbd','kk','km','kn','ko','koi','krc','ks','ku-arab','kv','ky','lbe','lez','lo','mai','mdf','mhr','mk','ml','mn','mo','mr','mrj','my','myv','mzn','ne','new','or','os','pa','pnb','pnt','ps','ru','rue','sa','sah','sd','si','sr','ta','te','tg','th','ti','tt','tyv','udm','ug','uk','ur','wuu','xmf','yi','zh','zh-classical','zh-hans','zh-hant','zh-tw','zh-cn','zh-hk','zh-sg'];
 	if ($.inArray(lang,latin)>-1){
 		var filter = /[\u4e00-\u9fff]|[\u0400-\u0500]/i; //chinese and cyrillic characters
@@ -216,24 +216,27 @@ function addNumOfLabels(el,qid,lang,label){
 	});
 }
 
-/* patrols an edit
+/* patrol or undo an edit
  * 
- * @param  string qid	affected item
- * @param  string revid	revision to patrol
+ * @param  string qid		affected item
+ * @param  string revid		revision to patrol
+ * @param  string action	patrol or undo
  * @return void.
 */
 
-function patrol(qid,revid){
+function patrol(qid,revid,action){
 	$.ajax({
 		type: 'GET',
 		url: 'php/oauth.php',
-		data: {action : 'patrol', revid : revid, title : qid}
+		data: {action : action, revid : revid, title : qid}
 	})
 	.done(function(data){
 		if (data == 'patrolled'){
-			$('#'+revid).fadeOut('slow')
+			$('#'+revid).fadeOut('slow',function(){
+				$('#'+revid).remove();
+			});
 		}else{
-			$("#hovercard").html(data).show()
+			$("#hovercard").html(data).show();
 		}
 	});
 }
@@ -324,7 +327,7 @@ $(document).ready(function(){
 			if ($(this).find('.title').attr('href') != undefined){
 				qid = $(this).find('.title').attr('href').substring(24);
 				revid = $(this).attr('id');
-				patrol(qid,revid);
+				patrol(qid,revid,'patrol');
 			}
 		});
 	});
@@ -337,7 +340,7 @@ $(document).ready(function(){
 			if ($(this).find('.title').attr('href') != undefined){
 				qid = $(this).find('.title').attr('href').substring(24);
 				revid = $(this).attr('id');
-				patrol(qid,revid);
+				patrol(qid,revid,'patrol');
 			}
 		});
 	});	
@@ -347,18 +350,7 @@ $(document).ready(function(){
 		e.preventDefault();
 		qid = $(this).parent().parent().parent().find('.title').attr('href').substring(24);
 		revid = $(this).parent().parent().parent().attr('id');
-		$.ajax({
-			type: 'GET',
-			url: 'php/oauth.php',
-			data: {action : $(this).text(), revid : revid, title : qid}
-		})
-		.done(function(data){
-			if (data == 'patrolled'){
-				$('#'+revid).fadeOut('slow')
-			}else{
-				$("#hovercard").html(data).show()
-			}
-		});
+		patrol(qid,revid,$(this).text());
 	});
 
 	/* hovercards for images */
