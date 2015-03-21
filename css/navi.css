@@ -44,7 +44,7 @@ li{
 	position:absolute;
 	top:0;
 	right:0;
-	background:#F3F3F3 url(pic/nav.svg) no-repeat center center;
+	background:#F3F3F3 url(../pic/nav.svg) no-repeat center center;
 	background-size:18px;
 	height:50px;
 	width:50px;
@@ -63,7 +63,7 @@ li{
 	display:block;
 	height:48px;
 	width:48px;
-	background:url(pic/drop.svg) no-repeat center center;
+	background:url(../pic/drop.svg) no-repeat center center;
 	background-size:20px;
 }
 .nav-click:hover {
