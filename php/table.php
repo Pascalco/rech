@@ -43,14 +43,14 @@ while ($m = mysql_fetch_assoc($result)){
 		echo '<tr class="trhead"><td colspan="5"><h3>'.substr($m['rc_timestamp'],0,4).'-'.substr($m['rc_timestamp'],4,2).'-'.substr($m['rc_timestamp'],6,2).'</h3></td></tr>';
 		$date = substr($m['rc_timestamp'],0,8);
 	}
-	echo '<tr id="'.$m['rc_this_oldid'].'">';
+	echo '<tr id="'.$m['rc_this_oldid'].'" data-qid="'.$m['rc_title'].'">';
 	echo '<td><a class="title" href="//www.wikidata.org/wiki/'.$m['rc_title'].'">'.getLabel($m['rc_title']).' <small>('.$m['rc_title'].')</small></a></td>';
 	echo '<td><span class="comment">'.parsedComment($m['rc_comment']).'</span>';
 	if ($size>0) echo ' (<span class="green" dir="ltr">+'.$size.'</span>)</td>';
 	else echo ' (<span class="red" dir="ltr">'.$size.'</span>) </td>';
 	echo '<td><div class="nlb"><a class="user" href="#">'.$m['rc_user_text'].'</a></div></td>';
 	echo '<td>'.substr($m['rc_timestamp'],8,2).':'.substr($m['rc_timestamp'],10,2).'</td>';
-	echo '<td><div class="nlb"><a class="diffview blue" href="#">diff</a>';
+	echo '<td><div class="nlb buttons"><a class="diffview blue" href="#">diff</a>';
 	echo '<a class="edit green" href="#">patrol</a>';
 	echo '<a class="edit red" href="#">undo</a></div></td></tr>';	
 }

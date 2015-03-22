@@ -19,12 +19,13 @@ function loadTable(){
 			$("#show").fadeIn('slow');
 			$('tr').each(function(){
 				if ($(this).find('.title').attr('href') != undefined){
-					el = $(this).find('.title');
-					qid = el.attr('href').substring(24);
-					addTitleTag(el,qid); // add alt tag with automated description
+					qid = $(this).attr('data-qid');
+					addTitleTag($(this).find('.title'),qid); // add alt tag with automated description
 					var comment = $(this).find('.comment')
 					if (comment.html().search('<span class="gray">Created new item: </span>') >-1){
 						addNumOfSitelinks(comment,qid); //add hint if no sitelinks are on item
+					}else{
+						if (isRollbacker == 1) addRollback($(this).find('.buttons'),qid,$(this).attr('id')); //add rollback button
 					}
 					reg = comment.html().match(/<span class="gray">(Added|Changed) \[(.*)\] label: <\/span>/);
 					if (reg != null){
@@ -216,24 +217,60 @@ function addNumOfLabels(el,qid,lang,label){
 	});
 }
 
-/* patrol or undo an edit
+/* add a rollback button to edits where possible
+ * 
+ * @param  object el	object to add the hint
+ * @param  string qid	affected item
+ * @param  string revid	rev id of edit
+ * @return void.
+*/
+function addRollback(el,qid,revid){
+	$.getJSON('//wikidata.org/w/api.php?callback=?',{
+		action : 'query',
+		prop : 'revisions',
+		titles : qid,
+		rvprop : 'ids',
+		format: 'json'
+	},function(data){
+		for (m in data.query.pages){
+			if (data.query.pages[m].revisions[0].revid == revid){
+				el.append('<a class="edit violet" href="#">rollback</a>');
+			}
+		}	
+	});
+}
+
+/* patrol, undo or rollback an edit
  * 
  * @param  string qid		affected item
  * @param  string revid		revision to patrol
  * @param  string action	patrol or undo
+ * @param  string usertext	user name
  * @return void.
 */
 
-function patrol(qid,revid,action){
+function patrol(qid,revid,action,usertext){
+	if (typeof usertext === "undefined")usertext = '';
 	$.ajax({
 		type: 'GET',
 		url: 'php/oauth.php',
-		data: {action : action, revid : revid, title : qid}
+		data: {action : action, revid : revid, title : qid, usertext : usertext}
 	})
 	.done(function(data){
 		if (data == 'patrolled'){
 			$('#'+revid).fadeOut('slow',function(){
 				$('#'+revid).remove();
+			});
+		}else if(data.substr(0,8) == 'rollback'){
+			$('tr').each(function(){
+				if ($(this).find('.title').attr('href') != undefined){
+					if ($(this) == data.substr(9)) return false;
+					if ($(this).attr('data-qid') == qid){
+						$(this).fadeOut('slow',function(){
+							$(this).remove();
+						});
+					}
+				}
 			});
 		}else{
 			$("#hovercard").html(data).show();
@@ -350,7 +387,8 @@ $(document).ready(function(){
 		e.preventDefault();
 		qid = $(this).parent().parent().parent().find('.title').attr('href').substring(24);
 		revid = $(this).parent().parent().parent().attr('id');
-		patrol(qid,revid,$(this).text());
+		usertext = $(this).parent().parent().parent().find('.user').text();
+		patrol(qid,revid,$(this).text(),usertext);
 	});
 
 	/* hovercards for images */

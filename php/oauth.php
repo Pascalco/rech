@@ -120,6 +120,10 @@ switch ( isset( $_GET['action'] ) ? $_GET['action'] : '' ){
 			doUndo($_GET['revid'],$_GET['title']);
 		}
 		break;
+	case 'rollback':
+		if ( isset ( $_GET['revid'] ) AND isset ( $_GET['title'] ) AND isset ( $_GET['usertext'])) {
+			doRollback($_GET['revid'],$_GET['title'],$_GET['usertext']);
+		}		
 }
 
 // ******************** CODE ********************
@@ -374,6 +378,74 @@ function doApiQuery( $post, &$ch = null ) {
 		exit(0);
 	}
 	return $ret;
+}
+/**
+ * Send an API query to rollback an edit
+ *
+ * @param array $revid revision id
+ * @param object $title page title
+ * @param array $usertext user name
+ * @return API error
+ */
+function doRollback($revid,$title,$usertext) {
+	global $mwOAuthIW;
+
+	$ch = null;
+
+	// First fetch the userinfo
+	$res = doApiQuery( array(
+		'format' => 'json',
+		'action' => 'query',
+		'meta' => 'userinfo',
+		'uiprop' => 'rights',
+	), $ch );
+
+	if ( isset( $res->error->code ) && $res->error->code === 'mwoauth-invalid-authorization' ) {
+		// We're not authorized!
+		echo 'You haven\'t authorized this application yet! Go <a href="../index.php?action=authorize" target="_parent">here</a> to do that.';
+		return;
+	}
+	if ( !isset( $res->query->userinfo ) ) {
+		header( "HTTP/1.1 $errorCode Internal Server Error" );
+		echo 'Bad API response: <pre>' . htmlspecialchars( var_export( $res, 1 ) ) . '</pre>';
+		exit(0);
+	}
+	if ( isset( $res->query->userinfo->anon ) ) {
+		header( "HTTP/1.1 $errorCode Internal Server Error" );
+		echo 'Not logged in. (How did that happen?)';
+		exit(0);
+	}
+	if ( !in_array( 'rollback',$res->query->userinfo->rights ) ) {
+		echo 'You haven\'t rollback rights';
+		exit(0);
+	}
+	// Next fetch the edit token
+	$res = doApiQuery( array(
+		'format' => 'json',
+		'action' => 'query',
+		'meta' => 'tokens',
+		'type' => 'rollback',
+	), $ch );
+	if ( !isset( $res->query->tokens->rollbacktoken ) ) {
+		header( "HTTP/1.1 $errorCode Internal Server Error" );
+		echo 'Bad API response: <pre>' . htmlspecialchars( var_export( $res, 1 ) ) . '</pre>';
+		exit(0);
+	}
+	$token = $res->query->tokens->rollbacktoken;
+
+	// Now perform the edit
+	$res = doApiQuery( array(
+		'format' => 'json',
+		'action' => 'rollback',
+		'title' => $title,
+		'user' => $usertext,
+		'token' => $token
+	), $ch );
+	if ( isset ($res->error ) ) {
+		echo '<b>'.$res->error->code.':</b><br />'.$res->error->info;
+	}else{
+		echo 'rollback|'.$res->rollback->last_revid;
+	}
 }
 
 /**

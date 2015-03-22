@@ -132,6 +132,10 @@ form{
 .blue{
 	color: #0174DF;
 }
+.violet{
+	color: #7401DF;
+}
+
 .reload{
 	color: #000;
 }
@@ -201,7 +205,7 @@ form{
 		border: none;
 	}
 	
-	a.green, a.red, a.blue, a.reload{
+	a.green, a.red, a.blue, a.violet, a.reload{
 		text-align: center;
 		display: inline-block;
 		padding: 5px 3px;
@@ -221,6 +225,10 @@ form{
 		background-color: #CC4444;
 		width: 28%;
 	}
+	a.violet{
+		background-color: #7401DF;
+		width: 28%;
+	}
 	a.reload{
 		background-color: #000;
 		width: 30%;
@@ -233,5 +241,8 @@ form{
 	}
 	.nlb{
 		white-space:normal;
+	}
+	.buttons{
+		text-align: right;
 	}
 }

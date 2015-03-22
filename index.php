@@ -65,7 +65,7 @@ $choiceShow = array('terms' => 'terms','claims' => 'claims','sitelinks' => 'site
 <link href="css/main.css" type="text/css" rel="stylesheet">
 <link href="css/navi.css" type="text/css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
-<script  type="text/javascript" src="rc.js"></script>
+<script src="rc.js"></script>
 <base target="_blank" />
 
 <script>
@@ -74,12 +74,15 @@ $(document).ready(function() {
 });
 <?PHP
 if ($_SESSION['reload'] != 0)echo "window.setInterval(function(){\n\tloadTable()\n},".($_SESSION['reload']*1000).");\n";
-?>	
-</script>
+$res = getUserInfo();
+if(in_array('rollback',$res->query->userinfo->rights)){
+	echo 'var isRollbacker = 1;';
+}else{
+	echo 'var isRollbacker = 0;';
+}
+echo "\n</script>\n".
+  "</head>\n<body>\n";
 
-</head>
-<body>
-<?php
 /* nav boxes */
 echo '<div class="nav">'.
   '<ul class="nav-list leftbox"><li class="nav-item">'.
@@ -106,7 +109,6 @@ foreach ($choiceReload as $key => $val){
 if ($_SESSION['reload'] != 0) echo '<li class="nav-submenu-item"><a href="?reload=0" target="_parent">no auto-reload</a></li>';
 echo '</ul></li>'.
   '</ul><ul class="nav-list rightbox">';
-$res = getUserInfo();
 if (!isset($res->error) and !isset($logout)){
 	echo '<li class="nav-item"><span><a href="?action=logout" target="_parent">logout</a></span></li>'.
 	  '<li class="nav-item"><span><a href="//www.wikidata.org/wiki/Special:Contributions/'.$res->query->userinfo->name.'">your edits</a></span></li>'.
