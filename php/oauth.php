@@ -584,7 +584,7 @@ function getUserInfo(){
 		'format' => 'json',
 		'action' => 'query',
 		'meta' => 'userinfo',
-		'uiprop' => 'blockinfo|groups|rights',
+		'uiprop' => 'blockinfo|groups|rights|options',
 	), $ch );
 	return $res;
 }

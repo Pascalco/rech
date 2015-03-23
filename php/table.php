@@ -31,17 +31,26 @@ foreach($lines as $line_num => $line){
 	$regexP[$ble[0]] = trim(str_replace('/','\/',$ble[1]));
 }
 
-
 /* START MAIN PART */
 echo '<div id="hovercard"></div><div id="hovercard2"></div><table id="main">';
 echo '<tr class="rightside"><td colspan="5"><a class="reload" href="#" target="_parent">reload</a></td></tr>';
-$date = 0;
+
+$olddate = 0;
+$res = getUserInfo();
+if (isset($res->query->userinfo->options->timecorrection)){
+	$arr = explode('|',$res->query->userinfo->options->timecorrection);
+	$timecorrection = $arr[1]*60;
+}else{
+	$timecorresiotn = 0;
+}
 $result = mysql_query("SELECT rc_this_oldid, rc_timestamp, rc_user_text, rc_title, rc_comment, rc_old_len, rc_new_len FROM recentchanges WHERE rc_patrolled=0 AND rc_namespace=0 AND rc_comment REGEXP '".$_SESSION['pat']."' ORDER BY rc_timestamp DESC LIMIT ".$_SESSION['limit']);
 while ($m = mysql_fetch_assoc($result)){
+	$time = strtotime($m['rc_timestamp'])+$timecorrection;
 	$size = $m['rc_new_len']-$m['rc_old_len'];
-	if (substr($m['rc_timestamp'],0,8) != $date){
-		echo '<tr class="trhead"><td colspan="5"><h3>'.substr($m['rc_timestamp'],0,4).'-'.substr($m['rc_timestamp'],4,2).'-'.substr($m['rc_timestamp'],6,2).'</h3></td></tr>';
-		$date = substr($m['rc_timestamp'],0,8);
+	$date = date("Y-m-d",$time);
+	if ($date != $olddate){
+		echo '<tr class="trhead"><td colspan="5"><h3>'.$date.'</h3></td></tr>';
+		$olddate = $date;
 	}
 	echo '<tr id="'.$m['rc_this_oldid'].'" data-qid="'.$m['rc_title'].'">';
 	echo '<td><a class="title" href="//www.wikidata.org/wiki/'.$m['rc_title'].'">'.getLabel($m['rc_title']).' <small>('.$m['rc_title'].')</small></a></td>';
@@ -49,7 +58,7 @@ while ($m = mysql_fetch_assoc($result)){
 	if ($size>0) echo ' (<span class="green" dir="ltr">+'.$size.'</span>)</td>';
 	else echo ' (<span class="red" dir="ltr">'.$size.'</span>) </td>';
 	echo '<td><div class="nlb"><a class="user" href="#">'.$m['rc_user_text'].'</a></div></td>';
-	echo '<td>'.substr($m['rc_timestamp'],8,2).':'.substr($m['rc_timestamp'],10,2).'</td>';
+	echo '<td>'.date("H:i",$time).'</td>';
 	echo '<td><div class="nlb buttons"><a class="diffview blue" href="#">diff</a>';
 	echo '<a class="edit green" href="#">patrol</a>';
 	echo '<a class="edit red" href="#">undo</a></div></td></tr>';	
