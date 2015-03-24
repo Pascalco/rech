@@ -10,6 +10,12 @@
  
 include("connect.php");
 include("oauth.php");
+$res = getUserInfo();
+if (isset($res->query->userinfo->options->language)){
+	$userlang = $res->query->userinfo->options->language;
+}else{
+	$userlang = 'en';
+}
 include("mainfunc.php");
 session_start();
 
@@ -36,7 +42,6 @@ echo '<div id="hovercard"></div><div id="hovercard2"></div><table id="main">';
 echo '<tr class="rightside"><td colspan="5"><a class="reload" href="#" target="_parent">reload</a></td></tr>';
 
 $olddate = 0;
-$res = getUserInfo();
 if (isset($res->query->userinfo->options->timecorrection)){
 	$arr = explode('|',$res->query->userinfo->options->timecorrection);
 	$timecorrection = $arr[1]*60;
