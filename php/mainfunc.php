@@ -9,22 +9,23 @@
 **/
 
 
-/* get label from wb_terms, first try en-label, second try some other languages, otherwise return Qid
+/* get label from wb_terms, first try $userlang, second try en, otherwise return emptry string
  * 
  * @param  string $qid	Qid
  * @return string.
 */
 function getLabel($qid){
+	global $userlang;
 	if (substr($qid,0,1) == 'Q') $entityType = 'item';
 	else $entityType = 'property';
-	$result2 = mysql_query('SELECT term_text FROM wb_terms WHERE term_type="label" AND term_entity_type="'.$entityType.'" AND term_entity_id="'.substr($qid,1).'" AND term_language="en"');
-	if (mysql_num_rows($result2) == 0){
-		$result2 = mysql_query('SELECT term_text FROM wb_terms WHERE term_type="label" AND term_entity_type="'.$entityType.'" AND term_entity_id="'.substr($qid,1).'" AND term_language REGEXP "de|fr|nl|it|sv|war|pt|es"');
+	$result2 = mysql_query('SELECT term_text FROM wb_terms WHERE term_type="label" AND term_entity_type="'.$entityType.'" AND term_entity_id="'.substr($qid,1).'" AND term_language="'.$userlang.'"');
+	if (mysql_num_rows($result2) == 0 AND $userlang != 'en'){ #fallback
+		$result2 = mysql_query('SELECT term_text FROM wb_terms WHERE term_type="label" AND term_entity_type="'.$entityType.'" AND term_entity_id="'.substr($qid,1).'" AND term_language REGEXP "en"');
 	}
 	while ($row = mysql_fetch_assoc($result2)){
 		return $row['term_text'];
 	}
-	return $qid;
+	return '';
 }
 
 /* parse wiki syntax
