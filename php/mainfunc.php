@@ -9,7 +9,7 @@
 **/
 
 
-/* get label from wb_terms, first try $userlang, second try en, otherwise return emptry string
+/* get label from wb_terms, first try $userlang, second try en, otherwise return Qid
  * 
  * @param  string $qid	Qid
  * @return string.
@@ -25,7 +25,7 @@ function getLabel($qid){
 	while ($row = mysql_fetch_assoc($result2)){
 		return $row['term_text'];
 	}
-	return '';
+	return $qid;
 }
 
 /* parse wiki syntax
@@ -189,8 +189,8 @@ function parsedComment($comment){
 		return '<span class="gray">Updated item: </span>'.parse($match[1]);
 	}else if (preg_match('/\/\* wbcreateredirect:0\|\|\[\[(Q[0-9]+)\]\]\|\[\[(Q[0-9]+)\]\] (.*)\*\//',$comment,$match) == 1){
 		return '<span class="gray">Redirected to: </span><a href="//www.wikidata.org/wiki/'.$match[2].'">'.getLabel($match[2]).'</a>';
-	}else if (preg_match('/\/\* wbeditentity-override:0\| \*\//',$comment,$match) == 1){
-		return '<span class="gray">Cleared an item: </span><a href="//www.wikidata.org/wiki/'.$match[2].'">'.getLabel($match[2]).'</a>';
+	}else if (preg_match('/\/\* wbeditentity-override:0\| \*\/(.*)/',$comment,$match) == 1){
+		return '<span class="gray">Cleared an item: </span>'.parse($match[1]).'</a>';
 	}else{
 		return parse($comment);
 	}
