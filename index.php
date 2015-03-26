@@ -46,14 +46,14 @@ if (isset($_GET['reload'])){
 }
 
 if (isset($_GET['limit'])){
-	if ($_GET['limit'] <= 100){
+	if ($_GET['limit'] <= 250){
 		$_SESSION['limit'] = $_GET['limit'];
 	}
 }else if (!isset($_SESSION['limit'])){
 	$_SESSION['limit'] = 50;
 }
 
-$choiceLimit = array('25'=>'25 edits','50'=>'50 edits','100'=>'100 edits');
+$choiceLimit = array('25'=>'25 edits','50'=>'50 edits','100'=>'100 edits','250'=>'250 edits');
 $choiceReload = array('60' => '1 minute','300' => '5 minutes','600' => '10 minutes');
 $choiceShow = array('terms' => 'terms','claims' => 'claims','sitelinks' => 'sitelinks', 'merges' => 'merges', 'moves'=>'page moves', 'new'=>'new items');
 ?>
