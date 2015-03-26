@@ -134,8 +134,8 @@ switch ( isset( $_GET['action'] ) ? $_GET['action'] : '' ){
  * @return void
  */
 function logout(){
-	setcookie( 'tokenKey','',1,'/' );
-	setcookie( 'tokenSecret','',1,'/' );
+	setcookie( 'tokenKey','',1,'/pltools' );
+	setcookie( 'tokenSecret','',1,'/pltools' );
 	$_SESSION['tokenKey'] = '';
 	$_SESSION['tokenSectret'] = '';
 }
@@ -249,8 +249,8 @@ function doAuthorizationRedirect() {
 	$_SESSION['tokenKey'] = $token->key;
 	$_SESSION['tokenSecret'] = $token->secret;
 	$t = time()+60*60*24*30; // expires in one month
-	setcookie ( 'tokenKey',$_SESSION['tokenKey'],$t,'/' );
-	setcookie ( 'tokenSecret',$_SESSION['tokenSecret'],$t,'/' );	
+	setcookie ( 'tokenKey',$_SESSION['tokenKey'],$t,'/pltools' );
+	setcookie ( 'tokenSecret',$_SESSION['tokenSecret'],$t,'/pltools' );
 	session_write_close();
 
 	// Then we send the user off to authorize
@@ -319,8 +319,8 @@ function fetchAccessToken() {
 	$_SESSION['tokenKey'] = $gTokenKey = $token->key;
 	$_SESSION['tokenSecret'] = $gTokenSecret = $token->secret;
 	$t = time()+60*60*24*30; // expires in one month
-	setcookie ( 'tokenKey',$_SESSION['tokenKey'],$t,'/' );
-	setcookie ( 'tokenSecret',$_SESSION['tokenSecret'],$t,'/' );	
+	setcookie ( 'tokenKey',$_SESSION['tokenKey'],$t,'/pltools' );
+	setcookie ( 'tokenSecret',$_SESSION['tokenSecret'],$t,'/pltools' );
 	session_write_close();
 }
 
