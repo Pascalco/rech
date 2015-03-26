@@ -8,22 +8,45 @@
  * CC0 Public Domain Dedication.
 **/
 
+/* do API request on wikidata.org/w/api.php
+ *
+ * @param  array $args	arguments to pass
+ * @return object.
+*/
+function apiRequest(array $args) {
+	$url = "https://www.wikidata.org/w/api.php?".http_build_query($args);
+	$response = file_get_contents($url);
+	$ret = json_decode($response);
+	if ($ret === null) {
+		echo 'Unparsable API response: <pre>' . htmlspecialchars( $ret ) . '</pre>';
+		exit(0);
+	}
+	return $ret;
+}
 
-/* get label from wb_terms, first try $userlang, second try en, otherwise return Qid
- * 
+/* get label from wbgetentities
+ *
+ * @param  string $qlist	list of all Qids of which the label is requested, separated by |
+ * @return void.
+*/
+function requestLabels($qlist){
+	global $userlang;
+	global $labels;
+	$req = apiRequest( array( 'format'=>'json','action'=>'wbgetentities','ids'=>$qlist,'props'=>'labels','languages'=>$userlang,'languagefallback'=>'1' ) );
+	if ( !isset( $labels ) ) $labels = $req->entities;
+	else $labels =(object)( array_merge( (array) $labels,(array) $req->entities ) );
+}
+
+/* get label from $labels
+ *
  * @param  string $qid	Qid
  * @return string.
 */
 function getLabel($qid){
 	global $userlang;
-	if (substr($qid,0,1) == 'Q') $entityType = 'item';
-	else $entityType = 'property';
-	$result2 = mysql_query('SELECT term_text FROM wb_terms WHERE term_type="label" AND term_entity_type="'.$entityType.'" AND term_entity_id="'.substr($qid,1).'" AND term_language="'.$userlang.'"');
-	if (mysql_num_rows($result2) == 0 AND $userlang != 'en'){ #fallback
-		$result2 = mysql_query('SELECT term_text FROM wb_terms WHERE term_type="label" AND term_entity_type="'.$entityType.'" AND term_entity_id="'.substr($qid,1).'" AND term_language REGEXP "en"');
-	}
-	while ($row = mysql_fetch_assoc($result2)){
-		return $row['term_text'];
+	global $labels;
+	if (isset($labels->$qid->labels->$userlang->value)){
+		return $labels->$qid->labels->$userlang->value;
 	}
 	return $qid;
 }

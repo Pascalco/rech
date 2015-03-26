@@ -7,7 +7,6 @@
  * See <http://creativecommons.org/publicdomain/zero/1.0/> for a copy of the 
  * CC0 Public Domain Dedication.
 **/
- 
 include("connect.php");
 include("oauth.php");
 $res = getUserInfo();
@@ -49,6 +48,19 @@ if (isset($res->query->userinfo->options->timecorrection)){
 	$timecorresiotn = 0;
 }
 $result = mysql_query("SELECT rc_this_oldid, rc_timestamp, rc_user_text, rc_title, rc_comment, rc_old_len, rc_new_len FROM recentchanges WHERE rc_patrolled=0 AND rc_namespace=0 AND rc_comment REGEXP '".$_SESSION['pat']."' ORDER BY rc_timestamp DESC LIMIT ".$_SESSION['limit']);
+
+/* request all labels */
+$qarray = array();
+while ($m = mysql_fetch_assoc($result)){
+	array_push($qarray,$m['rc_title']);
+	if (preg_match('/\[\[Property:(P[0-9]+)(\||\])/',$m['rc_comment'],$match) == 1)array_push($qarray,$match[1]);
+	if (preg_match('/\[\[(Q[0-9]+)(\||\])/',$m['rc_comment'],$match) == 1)array_push($qarray,$match[1]);
+}
+$qarray = array_unique($qarray);
+for($i=0;$i<ceil(count($qarray)/50);$i++)requestLabels(implode('|',array_slice($qarray,$i*50,50)));
+mysql_data_seek($result, 0);
+
+/*create table */
 while ($m = mysql_fetch_assoc($result)){
 	$time = strtotime($m['rc_timestamp'])+$timecorrection;
 	$size = $m['rc_new_len']-$m['rc_old_len'];
@@ -68,7 +80,7 @@ while ($m = mysql_fetch_assoc($result)){
 	echo '<td>'.date("H:i",$time).'</td>';
 	echo '<td><div class="nlb buttons"><a class="diffview blue" href="#">diff</a>';
 	echo '<a class="edit green" href="#">patrol</a>';
-	echo '<a class="edit red" href="#">undo</a></div></td></tr>';	
+	echo '<a class="edit red" href="#">undo</a></div></td></tr>';
 }
 //add patroll-all only if edited sitelinks or page moves are selected
 if ($_SESSION['pat'] == 'clientsitelink-update' or $_SESSION['pat'] == 'wbsetsitelink') echo '<tr><td colspan="4"></td><td style="text-align:right;"><a class="patrolall" href="#">patrol all edits</a></td></tr>';
