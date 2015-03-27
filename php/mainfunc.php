@@ -185,6 +185,8 @@ function parsedComment($comment){
 		return '<span class="gray">Removed ['.$match[1].'] label: </span>'.shorten($match[2]).addTranslate($match[2]);
 	}else if (preg_match('/\/\* wbsetaliases-remove:[0-9]+\|(.*) \*\/ (.*)/',$comment,$match) == 1){
 		return '<span class="gray">Removed ['.$match[1].'] alias: </span>'.shorten($match[2]).addTranslate($match[2]);
+	}else if (preg_match('/\/\* wbsetlabeldescriptionaliases:[0-9]+\|(.*) \*\/ (.*)/',$comment,$match) == 1){
+		return '<span class="gray">Changed ['.$match[1].'] label, description and aliases: </span>'.shorten($match[2]).addTranslate($match[2]);
 	/* sitelinks */
 	}else if (preg_match('/\/\* wbsetsitelink-add:1\|(.*) \*\/ (.*)/',$comment,$match) == 1){
 		return '<span class="gray">Added link to ['.$match[1].']: </span>'.wikilink($match[1],$match[2]);
