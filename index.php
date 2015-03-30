@@ -39,6 +39,15 @@ if (isset($_GET['show'])){
 	$_SESSION['show']='';
 }
 
+if (isset($_GET['filter'])) $_SESSION['filter'] = $_GET['filter'];
+if ($_SESSION['show'] == 'terms'){
+	if (!empty($_SESSION['filter'])){
+		$_SESSION['pat']= 'wbset(label|description|aliases)-(set|add|remove):[0-9]\\\|('.str_replace(array(', ',',',),'|',$_SESSION['filter']).')';
+	}else{
+		$_SESSION['pat']= 'wbset(label|description|aliases)-(set|add|remove):[0-9]\\\|';
+	}
+}
+
 if (isset($_GET['reload'])){
 	$_SESSION['reload'] = $_GET['reload'];
 }else if (!isset($_SESSION['reload'])){
@@ -117,6 +126,10 @@ if (!isset($res->error) and !isset($logout)){
 	echo '<li class="nav-item"><span><a href="../index.php?action=authorize" target="_parent">login</a></span></li>';
 }
 echo '</ul></div>';
+
+if ($_SESSION['show'] == 'terms'){
+	echo '<form method="get" href="#" target="_parent"><input type="text" value="'.$_SESSION['filter'].'" name="filter" class="inputtext" placeholder="enter language codes" /><input type="submit" value="filter" /></form>';
+}
 
 
 /* STATUS CHECK */

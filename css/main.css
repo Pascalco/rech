@@ -50,7 +50,12 @@ img{
 }
 
 form{
-	display: inline;
+	margin-left: 20px;
+}
+
+.inputtext{
+	padding: 2px;
+	margin: 0px;
 }
 
 #main{
