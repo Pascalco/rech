@@ -16,7 +16,7 @@ import re
 site = pywikibot.Site("wikidata", "wikidata")
 
 #get all url formatter values (P1630) from property pages
-f1 = open('url.dat','w')
+f1 = open('public_html/rech/statements/url.dat','w')
 blcontinue = '120|0'
 while True:
 	params = {
@@ -46,7 +46,7 @@ while True:
 f1.close()
 
 #get all regex expression in the Constraint:Format template from property talk pages
-f2 = open('regex.dat','w')
+f2 = open('public_html/rech/statements/regex.dat','w')
 atcontinue = 'Constraint:Format|0'
 while True:
 	params = {

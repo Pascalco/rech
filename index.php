@@ -84,8 +84,12 @@ $(document).ready(function() {
 <?PHP
 if ($_SESSION['reload'] != 0)echo "window.setInterval(function(){\n\tloadTable()\n},".($_SESSION['reload']*1000).");\n";
 $res = getUserInfo();
-if(in_array('rollback',$res->query->userinfo->rights)){
-	echo 'var isRollbacker = 1;';
+if (!isset($res->error)){
+	if(in_array('rollback',$res->query->userinfo->rights)){
+		echo 'var isRollbacker = 1;';
+	}else{
+		echo 'var isRollbacker = 0;';
+	}
 }else{
 	echo 'var isRollbacker = 0;';
 }
