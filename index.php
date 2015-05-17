@@ -73,7 +73,7 @@ $choiceShow = array('terms' => 'terms','claims' => 'claims','sitelinks' => 'site
 <meta charset="utf-8">
 <link href="css/main.css" type="text/css" rel="stylesheet">
 <link href="css/navi.css" type="text/css" rel="stylesheet">
-<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="//tools-static.wmflabs.org/static/jquery/1.11.0/jquery.min.js"></script>
 <script src="rc.js"></script>
 <base target="_blank" />
 
