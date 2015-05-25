@@ -71,9 +71,11 @@ while ($m = mysql_fetch_assoc($result)){
 	}
 	$tempLabel = getLabel($m['rc_title']);
 	$label = ( $tempLabel != $m['rc_title'] ) ? $tempLabel : '';
+	$redirect = getRedirect($m['rc_title']);
 	echo '<tr id="'.$m['rc_this_oldid'].'" data-qid="'.$m['rc_title'].'">';
-	echo '<td><a class="title" href="//www.wikidata.org/wiki/'.$m['rc_title'].'">'.$label.' <small>('.$m['rc_title'].')</small></a></td>';
-	echo '<td><span class="comment">'.parsedComment($m['rc_comment']).'</span>';
+	echo '<td><a class="title" href="//www.wikidata.org/wiki/'.$m['rc_title'].'">'.$label.' <small>('.$m['rc_title'].')</small></a>';
+	if ($redirect) echo ' <small>redirects to <a href="//www.wikidata.org/wiki/'.$redirect.'">'.$redirect.'</a></small>';
+	echo '</td><td><span class="comment">'.parsedComment($m['rc_comment']).'</span>';
 	if ($size>0) echo ' (<span class="green" dir="ltr">+'.$size.'</span>)</td>';
 	else echo ' (<span class="red" dir="ltr">'.$size.'</span>) </td>';
 	echo '<td><div class="nlb"><a class="user" href="#">'.$m['rc_user_text'].'</a></div></td>';

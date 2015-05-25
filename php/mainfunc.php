@@ -51,6 +51,17 @@ function getLabel($qid){
 	return $qid;
 }
 
+/* check if item is rediect
+ *
+ * @param  string $qid	Qid
+ * @return string.
+*/
+function getRedirect($qid){
+	global $labels;
+	if ($labels->$qid->id != $qid) return $labels->$qid->id;
+	return False;
+}
+
 /* parse wiki syntax
  * 
  * @param  string $comment	comment to parse
