@@ -87,17 +87,17 @@ function urlFormatter($p,$val){
 	if (array_key_exists($p,$regexP)){
 		if (!preg_match('/^'.$regexP[$p].'$/',$val,$match))$comment = ' <span class="red"><small>format violation</small></span>';
 	}
-	if (array_key_exists($p,$urls)){
-		return '<a href="'.str_replace('$1',htmlspecialchars($val),$urls[$p]).'">'.$val.'</a>'.$comment;
-	}
-	else if (preg_match('/\[\[(Q[0-9]+)(\|Q[0-9]+)?\]\]/',$val,$match)){
-		return '<a href="//www.wikidata.org/wiki/'.$match[1].'">'.getLabel($match[1]).'</a>'.$comment;
-	}
-	else if (in_array($p,$commonsProperties)){
+	if (in_array($p,$commonsProperties)){
 		return '<a href="#" class="image">'.$val.'</a>'.$comment;
 	}
 	else if (in_array($p,$urlProperties)){
 		return '<a href="'.$val.'">'.$val.'</a>'.$comment;
+	}
+	else if (array_key_exists($p,$urls)){
+		return '<a href="'.str_replace('$1',htmlspecialchars($val),$urls[$p]).'">'.$val.'</a>'.$comment;
+	}
+	else if (preg_match('/\[\[(Q[0-9]+)(\|Q[0-9]+)?\]\]/',$val,$match)){
+		return '<a href="//www.wikidata.org/wiki/'.$match[1].'">'.getLabel($match[1]).'</a>'.$comment;
 	}
 	return $val.$comment;
 }
