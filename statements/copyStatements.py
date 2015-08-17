@@ -27,7 +27,7 @@ while True:
 		'bllimit': '1000',
 		'blcontinue': blcontinue
 	}
-	req = api.Request(**params)
+	req = api.Request(site=site, **params)
 	data = req.submit()
 	for m in data['query']['backlinks']:
 		params2 = {
@@ -57,7 +57,7 @@ while True:
 		'atlimit' : '1000',
 		'atcontinue': atcontinue
 	}
-	req = api.Request(**params)
+	req = api.Request(site=site, **params)
 	data = req.submit()
 	for m in data['query']['alltransclusions']:
 		params2 = {
@@ -65,7 +65,7 @@ while True:
 			'pageids': m['fromid'],
 			'prop': 'info'
 		}
-		req2 = api.Request(**params2)
+		req2 = api.Request(site=site, **params2)
 		data2 = req2.submit()
 		title = data2['query']['pages'][str(m['fromid'])]['title']
 		try:
