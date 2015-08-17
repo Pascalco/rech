@@ -35,7 +35,7 @@ while True:
 			'entity': m['title'][9:],
 			'property': 'P1630'
 		}
-		req2 = api.Request(**params2)
+		req2 = api.Request(site=site, **params2)
 		data2 = req2.submit()
 		f1.write(m['title'][9:]+'|'+data2['claims']['P1630'][0]['mainsnak']['datavalue']['value']+'\n')
 	if 'query-continue' in data:
