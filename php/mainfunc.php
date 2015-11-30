@@ -162,6 +162,7 @@ function addTranslate($term){
  * @return string.
 */
 function parsedComment($comment){
+    $comment = htmlspecialchars($comment);
 	/* claims */
 	if (preg_match('/\/\* wb(set|create)claim-create:[0-9]\|\|?[0-9]? \*\/ \[\[Property:(P[0-9]+)(\|P[0-9]+)?\]\]: (.*)/',$comment,$match) == 1){
 		return '<span class="gray">Created claim: </span><a href="//www.wikidata.org/wiki/P:'.$match[2].'">'.getLabel($match[2]).'</a>: '.urlFormatter($match[2],$match[4]);
