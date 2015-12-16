@@ -168,10 +168,8 @@ function parsedComment($comment){
 		return '<span class="gray">Created claim: </span><a href="//www.wikidata.org/wiki/P:'.$match[2].'">'.getLabel($match[2]).'</a>: '.urlFormatter($match[2],$match[4]);
 	}else if (preg_match('/\/\* wbremoveclaims-remove:1\| \*\/ \[\[Property:(P[0-9]+)(\|P[0-9]+)?\]\]: (.*)/',$comment,$match) == 1){
 		return '<span class="gray">Removed claim: </span><a href="//www.wikidata.org/wiki/P:'.$match[1].'">'.getLabel($match[1]).'</a>: '.urlFormatter($match[1],$match[3]);
-	}else if (preg_match('/\/\* wb(set|create)claim-update:[0-9]\|?\|[0-9]? \*\/ \[\[Property:(P[0-9]+)(\|P[0-9]+)?\]\]: (.*)/',$comment,$match) == 1){
+	}else if (preg_match('/\/\* wb(set|create)claim-update:[0-9]\|?\|[0-9]?\|?[0-9]? \*\/ \[\[Property:(P[0-9]+)(\|P[0-9]+)?\]\]: (.*)/',$comment,$match) == 1){
 		return '<span class="gray">Changed claim: </span><a href="//www.wikidata.org/wiki/P:'.$match[2].'">'.getLabel($match[2]).'</a>: '.urlFormatter($match[2],$match[4]);
-	}else if (preg_match('/\/\* wbsetclaim-update:[0-9]\|\|[0-9]\|[0-9] \*\/ \[\[Property:(P[0-9]+)(\|P[0-9]+)?\]\]: (.*)/',$comment,$match) == 1){
-		return '<span class="gray">Added qualifier: </span><a href="//www.wikidata.org/wiki/P:'.$match[1].'">'.getLabel($match[1]).'</a>: '.urlFormatter($match[1],$match[3]);
 	}else if (preg_match('/\/\* wbsetqualifier-add:[0-9]\| \*\/ \[\[Property:(P[0-9]+)(\|P[0-9]+)?\]\]: (.*)/',$comment,$match) == 1){
 		return '<span class="gray">Added qualifier: </span><a href="//www.wikidata.org/wiki/P:'.$match[1].'">'.getLabel($match[1]).'</a>: '.urlFormatter($match[1],$match[3]);
 	}else if (preg_match('/\/\* wbsetreference-(set|add):[0-9]\| \*\/ \[\[Property:(P[0-9]+)(\|P[0-9]+)?\]\]: (.*)/',$comment,$match) == 1){
