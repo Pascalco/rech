@@ -1,10 +1,10 @@
 <?php
 /**
- * To the extent possible under law, the author(s) have dedicated all copyright 
- * and related and neighboring rights to this software to the public domain 
- * worldwide. This software is distributed without any warranty. 
+ * To the extent possible under law, the author(s) have dedicated all copyright
+ * and related and neighboring rights to this software to the public domain
+ * worldwide. This software is distributed without any warranty.
  *
- * See <http://creativecommons.org/publicdomain/zero/1.0/> for a copy of the 
+ * See <http://creativecommons.org/publicdomain/zero/1.0/> for a copy of the
  * CC0 Public Domain Dedication.
 **/
 include("connect.php");
@@ -45,7 +45,7 @@ if (isset($res->query->userinfo->options->timecorrection)){
 	$arr = explode('|',$res->query->userinfo->options->timecorrection);
 	$timecorrection = $arr[1]*60;
 }else{
-	$timecorresiotn = 0;
+	$timecorrection = 0;
 }
 $result = mysql_query("SELECT rc_this_oldid, rc_timestamp, rc_user_text, rc_title, rc_comment, rc_old_len, rc_new_len FROM recentchanges WHERE rc_patrolled=0 AND rc_namespace=0 AND rc_comment REGEXP '".$_SESSION['pat']."' ORDER BY rc_timestamp DESC LIMIT ".$_SESSION['limit']);
 
