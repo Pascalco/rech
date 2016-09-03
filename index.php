@@ -29,7 +29,10 @@ switch ( isset( $_GET['action'] ) ? $_GET['action'] : '' ){
 <link href="css/main.css" type="text/css" rel="stylesheet">
 <link href="css/navi.css" type="text/css" rel="stylesheet">
 <script src="//tools-static.wmflabs.org/static/jquery/1.11.0/jquery.min.js"></script>
-<script src="rc.js"></script>
+<?php
+    $commit = trim(file_get_contents( '../rech/.git/refs/heads/master' ));
+?>
+<script src="rc.js?version=<?php echo $commit; ?>"></script>
 <base target="_blank" />
 </head>
 
