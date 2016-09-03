@@ -9,16 +9,6 @@
 **/
 
 include("php/connect.php");
-include("php/oauth.php");
-include("php/mainfunc.php");
-
-//logout
-switch ( isset( $_GET['action'] ) ? $_GET['action'] : '' ){
-	case 'logout':
-		logout();
-		$logout = 1;
-		break;
-}
 ?>
 
 <!doctype html>

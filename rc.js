@@ -54,7 +54,7 @@ function loadNav() {
     content += '<ul class="nav-list rightbox">';
 
     if (username != '') {
-        content += '<li class="nav-item"><span><a href="?action=logout" target="_parent">logout</a></span></li> \
+        content += '<li class="nav-item"><span><a href="../index.php?action=logout" target="_parent">logout</a></span></li> \
             <li class="nav-item"><span><a href="//www.wikidata.org/wiki/Special:Contributions/' + username + '">your edits</a></span></li> \
             <li class="nav-item"><span><a href="//www.wikidata.org/w/index.php?title=Special:Log&type=patrol&user=' + username + '">your patrols</a></span></li>';
     } else {
