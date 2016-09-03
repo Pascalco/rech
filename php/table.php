@@ -16,7 +16,6 @@ if (isset($res->query->userinfo->options->language)){
 	$userlang = 'en';
 }
 include("mainfunc.php");
-session_start();
 
 //load url formatter (P1630) from file
 $file1 = "../statements/url.dat";
@@ -47,7 +46,7 @@ if (isset($res->query->userinfo->options->timecorrection)){
 }else{
 	$timecorrection = 0;
 }
-$result = mysql_query("SELECT rc_this_oldid, rc_timestamp, rc_user_text, rc_title, rc_comment, rc_old_len, rc_new_len FROM recentchanges WHERE rc_patrolled=0 AND rc_namespace=0 AND rc_comment REGEXP '".$_SESSION['pat']."' ORDER BY rc_timestamp DESC LIMIT ".$_SESSION['limit']);
+$result = mysql_query("SELECT rc_this_oldid, rc_timestamp, rc_user_text, rc_title, rc_comment, rc_old_len, rc_new_len FROM recentchanges WHERE rc_patrolled=0 AND rc_namespace=0 AND rc_comment REGEXP '".$_GET['pat']."' ORDER BY rc_timestamp DESC LIMIT ".$_GET['limit']);
 
 /* request all labels */
 $qarray = array();
@@ -85,7 +84,7 @@ while ($m = mysql_fetch_assoc($result)){
 	echo '<a class="edit red" href="#">undo</a></div></td></tr>';
 }
 //add patroll-all only if edited sitelinks or page moves are selected
-if ($_SESSION['pat'] == 'clientsitelink-update' or $_SESSION['pat'] == 'wbsetsitelink') echo '<tr><td colspan="4"></td><td style="text-align:right;"><a class="patrolall" href="#">patrol all edits</a></td></tr>';
+if ($_GET['pat'] == 'clientsitelink-update' or $_GET['pat'] == 'wbsetsitelink') echo '<tr><td colspan="4"></td><td style="text-align:right;"><a class="patrolall" href="#">patrol all edits</a></td></tr>';
 mysql_close($conn1);
 echo '<tr class="rightside"><td colspan="5"><a class="reload" href="#" target="_parent">reload</a></td></tr></table>';
 ?>

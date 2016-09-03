@@ -1,20 +1,94 @@
 /*
- * To the extent possible under law, the author(s) have dedicated all copyright 
- * and related and neighboring rights to this software to the public domain 
- * worldwide. This software is distributed without any warranty. 
+ * To the extent possible under law, the author(s) have dedicated all copyright
+ * and related and neighboring rights to this software to the public domain
+ * worldwide. This software is distributed without any warranty.
  *
- * See <http://creativecommons.org/publicdomain/zero/1.0/> for a copy of the 
+ * See <http://creativecommons.org/publicdomain/zero/1.0/> for a copy of the
  * CC0 Public Domain Dedication.
 */
 
+var choiceShow = {'terms' : 'terms','claims' : 'claims','sitelinks' : 'sitelinks', 'merges' : 'merges', 'page moves' : 'moves', 'new items' : 'new', 'display all edits' : 'all'};
+var choiceLimit = {'25 edits' : '25', '50 edits' : '50', '100 edits' : '100', '250 edits' : '250'};
+var choiceReload = {'1 minute': 60,  '5 minutes' : 300,  '10 minutes' : 600, 'no auto-reload': 0};
+var isRollbacker = 0;
+var username = '';
+var show = 'all';
+var filter = '';
+var pat = '.'
+var limit = '50';
+var reloadtime = 0;
+
+/* load navigation menu
+ *
+ * @return void.
+*/
+function loadNav() {
+    var content = '<ul class="nav-list leftbox"> \
+        <li class="nav-item">This is a filtered version of <a href="//www.wikidata.org/wiki/Special:RecentChanges" class="normallink">Special:RecentChanges</a> on Wikidata. Only unpatrolled edits are shown.</li> \
+        <li class="nav-item"><span>Select only </span><ul class="nav-submenu">';
+    for (var m in choiceShow) {
+        if(choiceShow[m] == show) {
+            content += '<li class="nav-submenu-item"><a class="inactive">' + m + '</a></li>';
+        } else {
+            content += '<li class="nav-submenu-item"><a class="show" href="#">' + m + '</a></li>';
+        }
+    }
+    content += '</ul></li><li class="nav-item"><span>Show last </span><ul class="nav-submenu">';
+    for (var m in choiceLimit) {
+        if (choiceLimit[m] == limit) {
+            content += '<li class="nav-submenu-item"><a class="inactive">' + m + '</a></li>';
+        } else {
+            content += '<li class="nav-submenu-item"><a class="limit" href="#">' + m + '</a></li>';
+        }
+    }
+    content += '</ul></li><li class="nav-item"><span>Reload after </span><ul class="nav-submenu">';
+    for (var m in choiceReload) {
+        if (choiceReload[m] == reloadtime) {
+            content += '<li class="nav-submenu-item"><a class="inactive">' + m + '</a></li>';
+        } else {
+            content += '<li class="nav-submenu-item"><a class="setreload" href="#">' + m + '</a></li>';
+        }
+    }
+    content += '</ul></li></ul>';
+
+    content += '<ul class="nav-list rightbox">';
+
+    if (username != '') {
+        content += '<li class="nav-item"><span><a href="?action=logout" target="_parent">logout</a></span></li> \
+            <li class="nav-item"><span><a href="//www.wikidata.org/wiki/Special:Contributions/' + username + '">your edits</a></span></li> \
+            <li class="nav-item"><span><a href="//www.wikidata.org/w/index.php?title=Special:Log&type=patrol&user=' + username + '">your patrols</a></span></li>';
+    } else {
+        content += '<li class="nav-item"><span><a href="../index.php?action=authorize">login</a></span></li>';
+    }
+    content += '</ul></div>';
+
+    if (show == 'terms') {
+        content += '<form href="#" id="filter"><input type="text" value="' + filter + '" name="filter" class="inputtext" placeholder="enter language codes" /><input type="submit" value="filter" /></form>';
+    }
+
+    $('.nav').html(content);
+
+    /* mobile menu */
+	$('.nav').append($('<div class="nav-mobile"></div>'));
+	$('.nav-item').has('ul').prepend('<div class="nav-click"><i class="nav-arrow"></i></div>');
+	$('.nav-mobile').click(function(){
+		$('.nav-list').toggle();
+	});
+	$('.nav-list').on('click', '.nav-click', function(){
+		$(this).siblings('.nav-submenu').toggle();
+		$(this).children('.nav-arrow').toggleClass('nav-rotate');
+	});
+}
+
+
 /* load main table into #show and add hints
- * 
+ *
  * @return void.
 */
 function loadTable(){
 	$('#load').show()
 	$('#show').fadeOut('fast', function(){
-		$('#show').load('php/table.php',function(){
+		$('#show').load('php/table.php?limit='+limit+'&pat='+pat,function(){
 			$("#load").fadeOut('fast');
 			$("#show").fadeIn('slow');
 			$('tr').each(function(){
@@ -48,7 +122,7 @@ function loadTable(){
 }
 
 /* add automated descriptions to alt tag
- * 
+ *
  * @param  object el	object to add the alt tag
  * @param  string qid	affected item
  * @return void.
@@ -69,7 +143,7 @@ function addTitleTag(el,qid){
 }
 
 /* add hint behind edit comment if no sitelinks are on item
- * 
+ *
  * @param  object el	object to add the hint
  * @param  string qid	affected item
  * @return void.
@@ -88,7 +162,7 @@ function addNumOfSitelinks(el,qid){
 }
 
 /* add hint behind edit comment if description is equal to label
- * 
+ *
  * @param  object el	object to add the hint
  * @param  string qid	affected item
  * @param  string lang  language of the edited description
@@ -114,7 +188,7 @@ function checkLabelDescription(el,qid,lang,desc){
 }
 
 /* add hint behind edit comment if label is equal to sitelink name
- * 
+ *
  * @param  object el	object to add the hint
  * @param  string qid	affected item
  * @param  string lang  language of the edited label
@@ -144,7 +218,7 @@ function checkLabelSitelink(el,qid,lang,label){
 }
 
 /* add hint behind edit comment if the term is written in the non-standard script
- * 
+ *
  * @param  object el	object to add the hint
  * @param  string lang  language of the edited term
  * @param  string term  edited term
@@ -162,11 +236,11 @@ function checkScript(el,lang,term){
 	}
 	if (filter.test(term)){
 		el.append(' <span class="red"><small>wrong script</small></span>');
-	}		
+	}
 }
 
 /* add hint behind edit comment if the term contains a bad word
- * 
+ *
  * @param  object el	object to add the hint
  * @param  string term  edited term
  * @return void.
@@ -179,7 +253,7 @@ function checkBadword(el,term){
 }
 
 /* add hint behind edit comment if the term contains a language name
- * 
+ *
  * @param  object el	object to add the hint
  * @param  string term  edited term
  * @return void.
@@ -192,7 +266,7 @@ function checkLanguageAsTerm(el,term){
 }
 
 /* add hint behind edit comment with the number of equal labels in other languages
- * 
+ *
  * @param  object el	object to add the hint
  * @param  string qid	affected item
  * @param  string lang  language of the edited label
@@ -218,7 +292,7 @@ function addNumOfLabels(el,qid,lang,label){
 }
 
 /* add a rollback button to edits where possible
- * 
+ *
  * @param  object el	object to add the hint
  * @param  string qid	affected item
  * @param  string revid	rev id of edit
@@ -236,12 +310,12 @@ function addRollback(el,qid,revid){
 			if (data.query.pages[m].revisions[0].revid == revid){
 				el.append('<a class="edit violet" href="#">rollback</a>');
 			}
-		}	
+		}
 	});
 }
 
 /* patrol, undo or rollback an edit
- * 
+ *
  * @param  string qid		affected item
  * @param  string revid		revision to patrol
  * @param  string action	patrol or undo
@@ -280,17 +354,89 @@ function patrol(qid,revid,action,usertext){
 
 $(document).ready(function(){
 	var mover = 0;
-	
-	/* mobile menu */
-	$('.nav').append($('<div class="nav-mobile"></div>'));
-	$('.nav-item').has('ul').prepend('<div class="nav-click"><i class="nav-arrow"></i></div>');
-	$('.nav-mobile').click(function(){
-		$('.nav-list').toggle();
+
+    $.ajax({
+        type: 'GET',
+        url: '../oauth.php',
+        data: {action : 'userinfo'}
+   })
+   .done(function(data){
+        if (!('error' in data)){
+            if (data.query.userinfo.rights.indexOf('rollback') > -1){
+                isRollbacker = 1;
+            }
+            username = data.query.userinfo.name;
+        }
+        loadNav();
+        loadTable();
+    });
+
+	/* set query type */
+	$('html').on('click', '.show', function(e) {
+        e.preventDefault();
+		show = choiceShow[$(this).text()];
+        switch(show){
+            case 'all': pat='.';break;
+            case 'terms': pat='label|description|alias';break;
+            case 'claims': pat='claim|qualifier|reference';break;
+            case 'sitelinks': pat='wbsetsitelink';break;
+            case 'merges': pat='merge';break;
+            case 'moves': pat='clientsitelink-update';break;
+            case 'new': pat='wbeditentity-create:';break;
+            default: pat='.';
+        };
+        loadNav();
+        loadTable();
 	});
-	$('.nav-list').on('click', '.nav-click', function(){
-		$(this).siblings('.nav-submenu').toggle();
-		$(this).children('.nav-arrow').toggleClass('nav-rotate');			
-	});	
+
+	/* set query limit */
+	$('html').on('click', '.limit', function(e) {
+        e.preventDefault();
+		limit = choiceLimit[$(this).text()];
+        loadNav();
+        loadTable();
+	});
+
+	/* set reload time */
+	$('html').on('click', '.setreload', function(e) {
+        e.preventDefault();
+		reloadtime = choiceReload[$(this).text()];
+        loadNav();
+        if (reloadtime != 0){
+            window.setInterval(function(){
+                loadTable()
+            },reloadtime*1000);
+        }
+	});
+
+    /* filter terms by languages */
+    $('html').on('submit', '#filter', function(e) {
+        e.preventDefault();
+        filter = $("[name='filter']").val().replace(/\s*,\s*/g, '|');
+        if (show == 'terms'){
+            if (filter != ''){
+                pat = 'wbset(label|description|aliases)-(set|add|remove):[0-9]\\\\\|(' + filter + ')';
+            }else{
+                pat = 'label|description|alias';
+            }
+        }
+        loadTable();
+    });
+
+	/* reload page */
+	$('html').on('click', '.reload', function(e) {
+        e.preventDefault();
+		loadTable();
+	});
+
+	/* highlight all edits of same user */
+	$('html').on('mouseover', '.user', function() {
+		if (mover == 0) $('.user:contains("'+$(this).text()+'")').parent().parent().parent().css('background-color','#FFCE7B');
+	});
+	$('html').on('mouseout', '.user', function() {
+		if (mover == 0)	$('.user:contains("'+$(this).text()+'")').parent().parent().parent().css('background-color','');
+
+	});
 
 	/* remove hovercards */
 	$('html').on('click',function(e){
@@ -298,20 +444,6 @@ $(document).ready(function(){
 		$("#hovercard2").hide();
 		mover = 0;
 		$('tr').css('background-color','');
-	});
-
-	/* reload page */
-	$('html').on('click','.reload',function(e){
-		loadTable();
-	});	
-	
-	/* highlight all edits of same user */
-	$('html').on('mouseover','.user',function(){
-		if (mover == 0) $('.user:contains("'+$(this).text()+'")').parent().parent().parent().css('background-color','#FFCE7B');
-	});	
-	$('html').on('mouseout','.user',function(){
-		if (mover == 0)	$('.user:contains("'+$(this).text()+'")').parent().parent().parent().css('background-color','');
-		
 	});
 
 	/* user hovercard */
@@ -326,7 +458,7 @@ $(document).ready(function(){
 			titles : 'User:'+usertext+'|User talk:'+usertext,
 			format: 'json'
 		},function(data){
-			for (m in data.query.pages){	
+			for (m in data.query.pages){
 				if (m != '-1'){
 					if (data.query.pages[m].ns == 2) cardtext += '<a href="//www.wikidata.org/wiki/User:'+usertext+'" title="User page">user</a> · '
 					if (data.query.pages[m].ns == 3) cardtext += '<a href="//www.wikidata.org/wiki/User_talk:'+usertext+'" title="Talk">talk</a> · '
@@ -342,7 +474,7 @@ $(document).ready(function(){
 			$('.user:contains("'+usertext+'")').parent().parent().parent().css('background-color','#FFCE7B');
 		});
 	});
-	
+
 	/* translate */
 	$('html').on('click','.translateIt', function(e){
 		e.preventDefault();
@@ -380,8 +512,8 @@ $(document).ready(function(){
 				patrol(qid,revid,'patrol');
 			}
 		});
-	});	
-	
+	});
+
 	/* patrol or undo */
 	$('html').on('click','.edit',function(e){
 		e.preventDefault();
