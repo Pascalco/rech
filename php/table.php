@@ -7,14 +7,10 @@
  * See <http://creativecommons.org/publicdomain/zero/1.0/> for a copy of the
  * CC0 Public Domain Dedication.
 **/
-include("connect.php");
-include("oauth.php");
-$res = getUserInfo();
-if (isset($res->query->userinfo->options->language)){
-	$userlang = $res->query->userinfo->options->language;
-}else{
-	$userlang = 'en';
-}
+include("../../connect.inc.php");
+include("../../oauth.php");
+
+$userlang = $_GET['userlang'];
 include("mainfunc.php");
 
 //load url formatter (P1630) from file

@@ -1,8 +1,20 @@
 <?PHP
 $file = '/data/project/pltools/replica.my.cnf';
 
-$config = parse_ini_file($file);
+$config = file_get_contents($file);
+$lines = explode("\n",$config);
 
-$conn1 = mysql_connect("enwiki.labsdb",$config['user'],$config['password']) OR die("no connection");
+foreach($lines AS $line){
+	if (strpos($line,'=') == false) continue;
+	$foo = explode('=',$line);
+	$foo[1] = trim(str_replace("'","",$foo[1]));
+	if (trim($foo[0]) == 'user') $username = $foo[1];
+	if (trim($foo[0]) == 'password') $password = $foo[1];
+}
+
+$conn1 = mysql_connect("enwiki.labsdb",$username,$password) OR die("no connection");
 mysql_select_db("wikidatawiki_p",$conn1) OR die("no database");
+
+//$conn2 = mysql_connect("tools-db",$username,$password) OR die("no connection");
+//mysql_select_db("s52276__analyze",$conn2) OR die("no database");
 ?>

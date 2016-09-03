@@ -12,6 +12,7 @@ var choiceLimit = {'25 edits' : '25', '50 edits' : '50', '100 edits' : '100', '2
 var choiceReload = {'1 minute': 60,  '5 minutes' : 300,  '10 minutes' : 600, 'no auto-reload': 0};
 var isRollbacker = 0;
 var username = '';
+var userlang = 'en';
 var show = 'all';
 var filter = '';
 var pat = '.'
@@ -88,7 +89,7 @@ function loadNav() {
 function loadTable(){
 	$('#load').show()
 	$('#show').fadeOut('fast', function(){
-		$('#show').load('php/table.php?limit='+limit+'&pat='+pat,function(){
+		$('#show').load('php/table.php?limit='+limit+'&pat='+pat+'&userlang='+userlang,function(){
 			$("#load").fadeOut('fast');
 			$("#show").fadeIn('slow');
 			$('tr').each(function(){
@@ -327,7 +328,7 @@ function patrol(qid,revid,action,usertext){
 	if (typeof usertext === "undefined")usertext = '';
 	$.ajax({
 		type: 'GET',
-		url: 'php/oauth.php',
+		url: '../oauth.php',
 		data: {action : action, revid : revid, title : qid, usertext : usertext}
 	})
 	.done(function(data){
@@ -366,6 +367,9 @@ $(document).ready(function(){
                 isRollbacker = 1;
             }
             username = data.query.userinfo.name;
+            if ('language' in data.query.userinfo.options) {
+                userlang = data.query.userinfo.options.language;
+            }
         }
         loadNav();
         loadTable();

@@ -1,17 +1,12 @@
-<?php
-/**
+<!doctype html>
+<!--
  * To the extent possible under law, the author(s) have dedicated all copyright
  * and related and neighboring rights to this software to the public domain
  * worldwide. This software is distributed without any warranty.
  *
  * See <http://creativecommons.org/publicdomain/zero/1.0/> for a copy of the
  * CC0 Public Domain Dedication.
-**/
-
-include("php/connect.php");
-?>
-
-<!doctype html>
+//-->
 <html>
 <head>
 <title>Wikidata Recent Changes</title>
@@ -31,6 +26,7 @@ include("php/connect.php");
 
 <?php
 /* STATUS CHECK */
+include('../connect.inc.php');
 $result = mysql_query("SELECT rc_timestamp FROM recentchanges ORDER BY rc_timestamp DESC LIMIT 1");
 $m = mysql_fetch_assoc($result);
 $timelag = time()-mktime(substr($m['rc_timestamp'],8,2),substr($m['rc_timestamp'],10,2),substr($m['rc_timestamp'],12,2),substr($m['rc_timestamp'],4,2),substr($m['rc_timestamp'],6,2),substr($m['rc_timestamp'],0,4)); #not necessary lag, only time elapsed since last edit
