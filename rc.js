@@ -102,20 +102,10 @@ function loadTable(){
 					}else{
 						if (isRollbacker == 1) addRollback($(this).find('.buttons'),qid,$(this).attr('id')); //add rollback button
 					}
-					reg = comment.html().match(/<span class="gray">(Added|Changed) \[(.*)\] label: <\/span>/);
+					reg = comment.html().match(/<span class="gray">(Added|Changed) \[(.*)\] (label|description): <\/span>/);
 					if (reg != null){
-						checkLabelSitelink(comment,qid,reg[2],$(this).find('.translateIt').attr('data-translate'));
-						checkScript(comment,reg[2],$(this).find('.translateIt').attr('data-translate'));
-						checkBadword(comment,$(this).find('.translateIt').attr('data-translate'));
-						checkLanguageAsTerm(comment,$(this).find('.translateIt').attr('data-translate'));
-					}
-					reg = comment.html().match(/<span class="gray">(Added|Changed) \[(.*)\] description: <\/span>/);
-					if (reg != null){
-						checkLabelDescription(comment,qid,reg[2],$(this).find('.translateIt').attr('data-translate'));
-						checkScript(comment,reg[2],$(this).find('.translateIt').attr('data-translate'));
-						checkBadword(comment,$(this).find('.translateIt').attr('data-translate'));
-						checkLanguageAsTerm(comment,$(this).find('.translateIt').attr('data-translate'));
-					}
+                        checks(comment, qid, reg[2], reg[3], $(this).find('.translateIt').attr('data-translate'));
+                    }
 				}
 			});
 		});
@@ -162,60 +152,73 @@ function addNumOfSitelinks(el,qid){
 	});
 }
 
-/* add hint behind edit comment if description is equal to label
+/* add hints behind edit comment
  *
  * @param  object el	object to add the hint
  * @param  string qid	affected item
- * @param  string lang  language of the edited description
- * @param  string desc  edited description
+ * @param  string lang  language of the edited term
+ * @param  string type  either label or description
+ * @param  string term  edited term
  * @return void.
 */
-function checkLabelDescription(el,qid,lang,desc){
+function checks(el, qid, lang, type, term){
 	$.getJSON('//wikidata.org/w/api.php?callback=?',{
 		action : 'wbgetentities',
-		props : 'labels',
+		props : 'labels|sitelinks',
 		languages : lang,
 		ids : qid,
 		format: 'json'
 	},function(data){
-		if (data.entities[qid].labels != undefined){
-			if (data.entities[qid].labels[lang] != undefined){
-				if (desc == data.entities[qid].labels[lang].value){
-					el.append(' <span class="red"><small>description==label</small></span>');
-				}
-			}
-		}
-	});
+        if (type == 'description'){
+            checkLabelDescription(data.entities[qid], el, lang, term)
+        }
+        if (type == 'label'){
+            checkLabelSitelink(data.entities[qid], el, lang, term)
+        }
+        checkScript(el, lang, term);
+        checkBadword(el, term);
+        checkLanguageAsTerm(el, term);
+    });
+}
+
+/* add hint behind edit comment if description is equal to label
+ *
+ * @param  object data  object representing the item
+ * @param  object el	object to add the hint
+ * @param  string lang  language of the edited description
+ * @param  string desc  edited description
+ * @return void.
+*/
+function checkLabelDescription(data, el, lang, desc){
+    if (data.labels != undefined){
+        if (data.labels[lang] != undefined){
+            if (desc == data.labels[lang].value){
+                el.append(' <span class="red"><small>description==label</small></span>');
+            }
+        }
+    }
 }
 
 /* add hint behind edit comment if label is equal to sitelink name
  *
+ * @param  object data  object representing the item
  * @param  object el	object to add the hint
- * @param  string qid	affected item
  * @param  string lang  language of the edited label
  * @param  string label	edited label
  * @return int.
 */
-function checkLabelSitelink(el,qid,lang,label){
+function checkLabelSitelink(data, el, lang, label){
 	var wiki = lang+'wiki'; // wrong in some cases
-	$.getJSON('//wikidata.org/w/api.php?callback=?',{
-		action : 'wbgetentities',
-		props : 'sitelinks',
-		sitefilter: wiki,
-		ids : qid,
-		format: 'json'
-	},function(data){
-		if (data.entities[qid].sitelinks != undefined){
-			if (data.entities[qid].sitelinks[wiki] != undefined){
-				if (label == data.entities[qid].sitelinks[wiki].title){
-					el.append(' <span class="green"><small>label==sitelink</small></span>');
-					return 1;
-				}
-			}
-		}
-		addNumOfLabels(el,qid,lang,label);
-		return 1;
-	});
+    if (data.sitelinks != undefined){
+        if (data.sitelinks[wiki] != undefined){
+            if (label == data.sitelinks[wiki].title){
+                el.append(' <span class="green"><small>label=sitelink</small></span>');
+                return 1;
+            }
+        }
+    }
+    addNumOfLabels(data, el, lang, label);
+    return 1;
 }
 
 /* add hint behind edit comment if the term is written in the non-standard script
@@ -225,12 +228,12 @@ function checkLabelSitelink(el,qid,lang,label){
  * @param  string term  edited term
  * @return void.
 */
-function checkScript(el,lang,term){
+function checkScript(el, lang, term){
 	var latin = ['af','ak','an','ang','arn','ast','ay','az','bar','bcl','bi','bm','br','bs','ca','cbk-zam','ceb','ch','chm','cho','chy','co','crh-latn','cs','csb','cy','da','de','diq','dsb','ee','eml','en','en-gb','en-ca','eo','es','et','eu','ff','fi','fj','fo','fr','frp','frr','fur','fy','ga','gd','gl','gn','gsw','gv','ha','haw','ho','hr','hsb','ht','hu','hz','id','ie','ig','ik','ilo','io','is','it','jbo','jv','kab','kg','ki','kj','kl','kr','ksh','ku','kw','la','lad','lb','lg','li','lij','lmo','ln','lt','lv','map-bms','mg','mh','mi','min','ms','mt','mus','mwl','na','nah','nan','nap','nb','nds','nds-nl','ng','nl','nn','nov','nrm','nv','ny','oc','om','pag','pam','pap','pcd','pdc','pih','pl','pms','pt','pt-br','qu','rm','rn','ro','roa-tara','rup','rw','sc','scn','sco','se','sg','sgs','sk','sl','sm','sn','so','sq','sr-el','ss','st','stq','su','sv','sw','szl','tet','tk','tl','tn','to','tpi','tr','ts','tum','tw','ty','uz','ve','vec','vi','vls','vo','vro','wa','war','wo','xh','yo','za','zea','zu'];
 	var nonlatin = ['ab','am','arc','ar','arz','as','ba','be','be-tarask','bg','bh','bn','bo','bpy','bxr','chr','ckb','cr','cv','dv','dz','el','fa','gan','glk','got','gu','hak','he','hi','hy','ii','iu','ja','ka','kbd','kk','km','kn','ko','koi','krc','ks','ku-arab','kv','ky','lbe','lez','lo','mai','mdf','mhr','mk','ml','mn','mo','mr','mrj','my','myv','mzn','ne','new','or','os','pa','pnb','pnt','ps','ru','rue','sa','sah','sd','si','sr','ta','te','tg','th','ti','tt','tyv','udm','ug','uk','ur','wuu','xmf','yi','zh','zh-classical','zh-hans','zh-hant','zh-tw','zh-cn','zh-hk','zh-sg'];
-	if ($.inArray(lang,latin)>-1){
+	if ($.inArray(lang, latin)>-1){
 		var filter = /[\u4e00-\u9fff]|[\u0400-\u0500]/i; //chinese and cyrillic characters
-	}else if ($.inArray(lang,nonlatin)>-1){
+	}else if ($.inArray(lang, nonlatin)>-1){
 		var filter = /[a-z]/i;
 	}else{
 		var filter = / /i;
@@ -246,7 +249,7 @@ function checkScript(el,lang,term){
  * @param  string term  edited term
  * @return void.
 */
-function checkBadword(el,term){
+function checkBadword(el, term){
 	var filter = /\bass(hole|wipe|\b)|bitch|\bcocks?\b|\bdicks?\b|\bloo?ser|\bcunts?\b|dildo|douche|fuck|nigg(er|a)|pedo(ph|f)ile|\bfag(g|\b)|pen+is|blowjob|\bcrap|\bballs|sluts?\b|\btrolo?l|whore|racist|\bsuck|\bshit|\bgays?\b|\bblah|\bpuss(y|ies?)|\bawesome\b|\bpo{2,}p?\b|\bidiots?\b|\bretards?\b|\byolo\b|\b(my|ya|y?our|his|her) m(ama|om|other)|vaginas?\b|\bswag|\bcaca\b|\bmierda|\bpenes?\b|\bpulla\b|\bpopos?\b|\bput[ao]\b|\btu madre\b|\btonto\b|[:;]-?\)$|\bxd *$|<3|\bnazi\b/i
 	if (filter.test(term)){
 		el.append(' <span class="red"><small>bad word</small></span>');
@@ -259,7 +262,7 @@ function checkBadword(el,term){
  * @param  string term  edited term
  * @return void.
 */
-function checkLanguageAsTerm(el,term){
+function checkLanguageAsTerm(el, term){
 	var filter = /^([ei]n )??(a(frikaa?ns|lbanian?|lemanha|ng(lais|ol)|ra?b(e?|[ei]c|ian?|isc?h)|rmenian?|ssamese|azeri|z[eə]rba(ijani?|ycan(ca)?|yjan)|нглийский)|b(ahasa( (indonesia|jawa|malaysia|melayu))?|angla|as(k|qu)e|[aeo]ng[ao]?li|elarusian?|okmål|osanski|ra[sz]il(ian?)?|ritish( kannada)?|ulgarian?)|c(ebuano|hina|hinese( simplified)?|zech|roat([eo]|ian?)|atal[aà]n?|рпски|antonese)|[cč](esky|e[sš]tina)|d(an(isc?h|sk)|e?uts?ch)|e(esti|ll[hi]nika|ng(els|le(ski|za)|lisc?h)|spa(g?[nñ]h?i?ol|nisc?h)|speranto|stonian|usk[ae]ra)|f(ilipino|innish|ran[cç](ais|e|ez[ao])|ren[cs]h|arsi|rancese)|g(al(ego|ician)|uja?rati|ree(ce|k)|eorgian|erman[ay]?|ilaki)|h(ayeren|ebrew|indi|rvatski|ungar(y|ian))|i(celandic|ndian?|ndonesian?|ngl[eê]se?|ngilizce|tali(ano?|en(isch)?))|ja(pan(ese)?|vanese)|k(a(nn?ada|zakh)|hmer|o(rean?|sova)|urd[iî])|l(at(in[ao]?|vi(an?|e[sš]u))|ietuvi[uų]|ithuanian?)|m(a[ck]edon(ian?|ski)|agyar|alay(alam?|sian?)?|altese|andarin|arathi|elayu|ontenegro|ongol(ian?)|yanmar)|n(e(d|th)erlands?|epali|orw(ay|egian)|orsk( bokm[aå]l)?|ynorsk)|o(landese|dia)|p(ashto|ersi?an?|ol(n?isc?h|ski)|or?tugu?[eê]se?(( d[eo])? brasil(eiro)?| ?\(brasil\))?|unjabi)|r(om[aâi]ni?[aă]n?|um(ano|änisch)|ussi([ao]n?|sch))|s(anskrit|erbian|imple english|inha?la|lov(ak(ian?)?|enš?[cč]ina|en(e|ij?an?)|uomi)|erbisch|pagnolo?|panisc?h|rbeska|rpski|venska|c?wedisc?h|hqip)|t(a(galog|mil)|elugu|hai(land)?|i[eế]ng vi[eệ]t|[uü]rk([cç]e|isc?h|iş|ey))|u(rdu|zbek)|v(alencia(no?)?|ietnamese)|welsh|(англиис|[kк]алмыкс|[kк]азахс|немец|[pр]усс|[yу]збекс|татарс)кий( язык)??|עברית|[kкқ](аза[кқ]ша|ыргызча|ирилл)|українськ(а|ою)|б(еларуская|ългарски( език)?)|ελλ[ηι]νικ(ά|α)|ქართული|हिन्दी|ไทย|[mм]онгол(иа)?|([cс]рп|[mм]акедон)ски|العربية|日本語|한국(말|어)|‌हिनद़ि|বাংলা|ਪੰਜਾਬੀ|मराठी|ಕನ್ನಡ|اُردُو|தமிழ்|తెలుగు|ગુજરાતી|فارسی|پارسی|മലയാളം|پښتو|မြန်မာဘာသာ|中文(简体|繁體)?|中文（(简体?|繁體)）|简体|繁體)( language)??$/i
 	if (filter.test(term)){
 		el.append(' <span class="red"><small>language name</small></span>');
@@ -268,28 +271,21 @@ function checkLanguageAsTerm(el,term){
 
 /* add hint behind edit comment with the number of equal labels in other languages
  *
+ * @param  object data  object representing the item
  * @param  object el	object to add the hint
- * @param  string qid	affected item
  * @param  string lang  language of the edited label
  * @param  string label	edited label
  * @return void.
 */
-function addNumOfLabels(el,qid,lang,label){
-	$.getJSON('//wikidata.org/w/api.php?callback=?',{
-		action : 'wbgetentities',
-		props : 'labels',
-		ids : qid,
-		format: 'json'
-	},function(data){
-		var cnt = 0;
-		for (m in data.entities[qid].labels){
-			if (m == lang)continue;
-			if (data.entities[qid].labels[m].value == label) cnt += 1;
-		}
-		if (cnt > 0){
-			el.append(' <span class="green"><small>'+cnt.toString()+' identical label(s)</small></span>');
-		}
-	});
+function addNumOfLabels(data, el, lang, label){
+    var cnt = 0;
+    for (m in data.labels){
+        if (m == lang) continue;
+        if (data.labels[m].value == label) cnt += 1;
+    }
+    if (cnt > 0){
+        el.append(' <span class="green"><small>' + cnt.toString() + ' identical label(s)</small></span>');
+    }
 }
 
 /* add a rollback button to edits where possible
