@@ -13,23 +13,9 @@ include("../../oauth.php");
 $userlang = $_GET['userlang'];
 include("mainfunc.php");
 
-//load url formatter (P1630) from file
-$file1 = "../statements/url.dat";
-$lines = file($file1);
-$urls = array();
-foreach($lines as $line_num => $line){
-	$ble = explode('|',$line);
-	$urls[$ble[0]] = trim($ble[1]);
-}
-
-//load format constraints from file
-$file1 = "../statements/regex.dat";
-$lines = file($file1);
-$regexP = array();
-foreach($lines as $line_num => $line){
-	$ble = explode('|',$line,2);
-	$regexP[$ble[0]] = trim(str_replace('/','\/',$ble[1]));
-}
+//load datatypes, url formatter (P1630) and regex(P1793) from file
+$str = file_get_contents("../statements/statements.json");
+$formatter = json_decode($str, true);
 
 /* START MAIN PART */
 echo '<div id="hovercard"></div><div id="hovercard2"></div><table id="main">';

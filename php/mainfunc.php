@@ -1,10 +1,10 @@
 <?php
 /**
- * To the extent possible under law, the author(s) have dedicated all copyright 
- * and related and neighboring rights to this software to the public domain 
- * worldwide. This software is distributed without any warranty. 
+ * To the extent possible under law, the author(s) have dedicated all copyright
+ * and related and neighboring rights to this software to the public domain
+ * worldwide. This software is distributed without any warranty.
  *
- * See <http://creativecommons.org/publicdomain/zero/1.0/> for a copy of the 
+ * See <http://creativecommons.org/publicdomain/zero/1.0/> for a copy of the
  * CC0 Public Domain Dedication.
 **/
 
@@ -63,7 +63,7 @@ function getRedirect($qid){
 }
 
 /* parse wiki syntax
- * 
+ *
  * @param  string $comment	comment to parse
  * @return string.
 */
@@ -73,37 +73,34 @@ function parse($comment){
 }
 
 /* add links to properties with url formatter (P1630), image file on commons, url data type with http protocol
- * 
+ *
  * @param  string $p	property id
  * @param  string $val	property value
  * @return string.
 */
-function urlFormatter($p,$val){
-	global $urls;
-	global $regexP;
-	$commonsProperties = array("P14","P15","P18","P41","P94","P109","P117","P154","P158","P181","P207","P242","P367","P491","P692","P948","P996","P1442","P1543","P1621");
-	$urlProperties = array("P854","P856","P857","P953","P963","P973","P1019","P1065","P1324","P1325","P1348","P1401","P1421","P1482","P1581","P1713");
-	$comment = '';
-	if (array_key_exists($p,$regexP)){
-		if (!preg_match('/^'.$regexP[$p].'$/',$val,$match))$comment = ' <span class="red"><small>format violation</small></span>';
-	}
-	if (in_array($p,$commonsProperties)){
-		return '<a href="#" class="image">'.$val.'</a>'.$comment;
-	}
-	else if (in_array($p,$urlProperties)){
-		return '<a href="'.$val.'">'.$val.'</a>'.$comment;
-	}
-	else if (array_key_exists($p,$urls)){
-		return '<a href="'.str_replace('$1',htmlspecialchars($val),$urls[$p]).'">'.$val.'</a>'.$comment;
-	}
-	else if (preg_match('/\[\[(Q[0-9]+)(\|Q[0-9]+)?\]\]/',$val,$match)){
-		return '<a href="//www.wikidata.org/wiki/'.$match[1].'">'.getLabel($match[1]).'</a>'.$comment;
-	}
-	return $val.$comment;
+function urlFormatter($p, $val){
+    global $formatter;
+    if (array_key_exists($p, $formatter)){
+        $comment = '';
+        if ($formatter[$p]['type'] == 'Url'){
+            $val = '<a href="'.$val.'">'.$val.'</a>';
+        } else if ($formatter[$p]['type'] == 'CommonsMedia'){
+            $val  = '<a href="#" class="image">'.$val.'</a>';
+        } else if (($formatter[$p]['type'] == 'ExternalId' || $formatter[$p]['type'] == 'String') && array_key_exists('formatterurl', $formatter[$p])){
+            $val = '<a href="'.str_replace('$1', htmlspecialchars($val), $formatter[$p]['formatterurl']).'">'.$val.'</a>';
+        }
+        if (array_key_exists('regex', $formatter->$p)){
+            if (!preg_match('/^'.$regexP[$p].'$/', $val, $match))$comment = ' <span class="red"><small>format violation</small></span>';
+        }
+    } else if (preg_match('/\[\[(Q[0-9]+)(\|Q[0-9]+)?\]\]/',$val, $match)){
+		$val =  '<a href="//www.wikidata.org/wiki/'.$match[1].'">'.getLabel($match[1]).'</a>';
+    }
+    return $val.$comment;
 }
 
+
 /* add wikilinks
- * 
+ *
  * @param  string $wiki	site name
  * @param  string $page page name
  * @return string.
@@ -136,7 +133,7 @@ function wikilink($wiki,$page){
 }
 
 /* shorten the edit comment to 100 characters
- * 
+ *
  * @param  string $term	term to short
  * @return string.
 */
@@ -148,7 +145,7 @@ function shorten($term){
 }
 
 /* add translation button
- * 
+ *
  * @param  string $term	term to add the button
  * @return string.
 */
@@ -157,7 +154,7 @@ function addTranslate($term){
 }
 
 /* parse edit comments
- * 
+ *
  * @param  string $comment	comment to parse
  * @return string.
 */
