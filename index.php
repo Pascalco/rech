@@ -27,8 +27,8 @@
 <?php
 /* STATUS CHECK */
 include('../connect.inc.php');
-$result = mysql_query("SELECT rc_timestamp FROM recentchanges ORDER BY rc_timestamp DESC LIMIT 1");
-$m = mysql_fetch_assoc($result);
+$result = mysqli_query($conn, "SELECT rc_timestamp FROM recentchanges ORDER BY rc_timestamp DESC LIMIT 1");
+$m = mysqli_fetch_assoc($result);
 $timelag = time()-mktime(substr($m['rc_timestamp'],8,2),substr($m['rc_timestamp'],10,2),substr($m['rc_timestamp'],12,2),substr($m['rc_timestamp'],4,2),substr($m['rc_timestamp'],6,2),substr($m['rc_timestamp'],0,4)); #not necessary lag, only time elapsed since last edit
 if ($timelag > 10) echo '<div class="warning">Warning: Edits of the last '.$timelag.' seconds are missing</div>';
 ?>

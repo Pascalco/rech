@@ -28,21 +28,21 @@ if (isset($res->query->userinfo->options->timecorrection)){
 }else{
 	$timecorrection = 0;
 }
-$result = mysql_query("SELECT rc_this_oldid, rc_timestamp, rc_user_text, rc_title, rc_comment, rc_old_len, rc_new_len FROM recentchanges WHERE rc_patrolled=0 AND rc_namespace=0 AND rc_comment REGEXP '".$_GET['pat']."' ORDER BY rc_timestamp DESC LIMIT ".$_GET['limit']);
+$result = mysqli_query($conn, "SELECT rc_this_oldid, rc_timestamp, rc_user_text, rc_title, rc_comment, rc_old_len, rc_new_len FROM recentchanges WHERE rc_patrolled=0 AND rc_namespace=0 AND rc_comment REGEXP '".$_GET['pat']."' ORDER BY rc_timestamp DESC LIMIT ".$_GET['limit']);
 
 /* request all labels */
 $qarray = array();
-while ($m = mysql_fetch_assoc($result)){
+while ($m = mysqli_fetch_assoc($result)){
 	array_push($qarray,$m['rc_title']);
 	if (preg_match('/\[\[Property:(P[0-9]+)(\||\])/',$m['rc_comment'],$match) == 1)array_push($qarray,$match[1]);
 	if (preg_match('/\[\[(Q[0-9]+)(\||\])/',$m['rc_comment'],$match) == 1)array_push($qarray,$match[1]);
 }
 $qarray = array_unique($qarray);
 for($i=0;$i<ceil(count($qarray)/50);$i++)requestLabels(implode('|',array_slice($qarray,$i*50,50)));
-mysql_data_seek($result, 0);
+mysqli_data_seek($result, 0);
 
 /*create table */
-while ($m = mysql_fetch_assoc($result)){
+while ($m = mysqli_fetch_assoc($result)){
 	$time = strtotime($m['rc_timestamp'])+$timecorrection;
 	$size = $m['rc_new_len']-$m['rc_old_len'];
 	$date = date("Y-m-d",$time);
@@ -67,5 +67,5 @@ while ($m = mysql_fetch_assoc($result)){
 }
 echo '<tr><td colspan="4"></td><td style="text-align:right;"><a class="patrolall" href="#">patrol all edits</a></td></tr>';
 echo '<tr class="rightside"><td colspan="5"><a class="reload" href="#" target="_parent">reload</a></td></tr></table>';
-mysql_close($conn1);
+mysqli_close($conn);
 ?>
