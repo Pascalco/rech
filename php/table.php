@@ -65,8 +65,7 @@ while ($m = mysql_fetch_assoc($result)){
 	echo '<a class="edit green" href="#">patrol</a>';
 	echo '<a class="edit red" href="#">undo</a></div></td></tr>';
 }
-//add patroll-all only if edited sitelinks or page moves are selected
-if ($_GET['pat'] == 'clientsitelink-update' or $_GET['pat'] == 'wbsetsitelink') echo '<tr><td colspan="4"></td><td style="text-align:right;"><a class="patrolall" href="#">patrol all edits</a></td></tr>';
-mysql_close($conn1);
+echo '<tr><td colspan="4"></td><td style="text-align:right;"><a class="patrolall" href="#">patrol all edits</a></td></tr>';
 echo '<tr class="rightside"><td colspan="5"><a class="reload" href="#" target="_parent">reload</a></td></tr></table>';
+mysql_close($conn1);
 ?>
