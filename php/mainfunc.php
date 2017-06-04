@@ -107,26 +107,26 @@ function urlFormatter($p, $val){
 */
 function wikilink($wiki,$page){
 	if ($wiki == 'commonswiki'){
-		return '<a href="//commons.wikimedia.org/wiki/'.$page.'">'.$page.'</a>'.addTranslate($page);
+		return '<a href="//commons.wikimedia.org/wiki/'.$page.'">'.$page.'</a>';
 	}
 	if (substr($wiki,-4) == "wiki"){
 		$wikicode = str_replace('_','-',substr($wiki,0,strlen($wiki)-4));
-		return '<a href="//'.$wikicode.'.wikipedia.org/wiki/'.$page.'">'.$page.'</a>'.addTranslate($page);
+		return '<a href="//'.$wikicode.'.wikipedia.org/wiki/'.$page.'">'.$page.'</a>';
 	}else if (substr($wiki,-9) == "wikiquote"){
 		$wikicode = str_replace('_','-',substr($wiki,0,strlen($wiki)-9));
-		return '<a href="//'.$wikicode.'.wikiquote.org/wiki/'.$page.'">'.$page.'</a>'.addTranslate($page);
+		return '<a href="//'.$wikicode.'.wikiquote.org/wiki/'.$page.'">'.$page.'</a>';
 	}else if (substr($wiki,-8) == "wikinews"){
 		$wikicode = str_replace('_','-',substr($wiki,0,strlen($wiki)-8));
-		return '<a href="//'.$wikicode.'.wikinews.org/wiki/'.$page.'">'.$page.'</a>'.addTranslate($page);
+		return '<a href="//'.$wikicode.'.wikinews.org/wiki/'.$page.'">'.$page.'</a>';
 	}else if (substr($wiki,-10) == "wikivoyage"){
 		$wikicode = str_replace('_','-',substr($wiki,0,strlen($wiki)-10));
-		return '<a href="//'.$wikicode.'.wikivoyage.org/wiki/'.$page.'">'.$page.'</a>'.addTranslate($page);
+		return '<a href="//'.$wikicode.'.wikivoyage.org/wiki/'.$page.'">'.$page.'</a>';
 	}else if (substr($wiki,-9) == "wikibooks"){
 		$wikicode = str_replace('_','-',substr($wiki,0,strlen($wiki)-9));
-		return '<a href="//'.$wikicode.'.wikibooks.org/wiki/'.$page.'">'.$page.'</a>'.addTranslate($page);
+		return '<a href="//'.$wikicode.'.wikibooks.org/wiki/'.$page.'">'.$page.'</a>';
 	}else if (substr($wiki,-10) == "wikisource"){
 		$wikicode = str_replace('_','-',substr($wiki,0,strlen($wiki)-10));
-		return '<a href="//'.$wikicode.'.wikisource.org/wiki/'.$page.'">'.$page.'</a>'.addTranslate($page);
+		return '<a href="//'.$wikicode.'.wikisource.org/wiki/'.$page.'">'.$page.'</a>';
 	}else{
 		return $page;
 	}
@@ -144,14 +144,6 @@ function shorten($term){
 	return $term;
 }
 
-/* add translation button
- *
- * @param  string $term	term to add the button
- * @return string.
-*/
-function addTranslate($term){
-	return ' <a class="translateIt" data-translate="'.$term.'" title="Translations by Microsoft® Translator" href="#"><img src="pic/Microsoft-Translator.png" alt="translate" width="16"></a>';
-}
 
 /* parse edit comments
  *
@@ -175,25 +167,25 @@ function parsedComment($comment){
 		return '<span class="gray">Removed reference from claim: </span><a href="//www.wikidata.org/wiki/P:'.$match[1].'">'.getLabel($match[1]).'</a>: '.urlFormatter($match[1],$match[3]);
 		/* terms */
 	}else if (preg_match('/\/\* wbsetdescription-add:1\|(.*) \*\/ (.*)/',$comment,$match) == 1){
-		return '<span class="gray">Added ['.$match[1].'] description: </span>'.shorten($match[2]).addTranslate($match[2]);
+		return '<span class="gray">Added ['.$match[1].'] description: </span>'.shorten($match[2]);
 	}else if (preg_match('/\/\* wbsetlabel-add:1\|(.*) \*\/ (.*)/',$comment,$match) == 1){
-		return '<span class="gray">Added ['.$match[1].'] label: </span>'.shorten($match[2]).addTranslate($match[2]);
+		return '<span class="gray">Added ['.$match[1].'] label: </span>'.shorten($match[2]);
 	}else if (preg_match('/\/\* wbsetaliases-add:[0-9]+\|(.*) \*\/ (.*)/',$comment,$match) == 1){
-		return '<span class="gray">Added ['.$match[1].'] alias: </span>'.shorten($match[2]).addTranslate($match[2]);
+		return '<span class="gray">Added ['.$match[1].'] alias: </span>'.shorten($match[2]);
 	}else if (preg_match('/\/\* wbsetdescription-set:1\|(.*) \*\/ (.*)/',$comment,$match) == 1){
-		return '<span class="gray">Changed ['.$match[1].'] description: </span>'.shorten($match[2]).addTranslate($match[2]);
+		return '<span class="gray">Changed ['.$match[1].'] description: </span>'.shorten($match[2]);
 	}else if (preg_match('/\/\* wbsetlabel-set:1\|(.*) \*\/ (.*)/',$comment,$match) == 1){
-		return '<span class="gray">Changed ['.$match[1].'] label: </span>'.shorten($match[2]).addTranslate($match[2]);
+		return '<span class="gray">Changed ['.$match[1].'] label: </span>'.shorten($match[2]);
 	}else if (preg_match('/\/\* wbsetaliases-set:[0-9]+\|(.*) \*\/ (.*)/',$comment,$match) == 1){
-		return '<span class="gray">Changed ['.$match[1].'] alias: </span>'.shorten($match[2]).addTranslate($match[2]);
+		return '<span class="gray">Changed ['.$match[1].'] alias: </span>'.shorten($match[2]);
 	}else if (preg_match('/\/\* wbsetdescription-remove:1\|(.*) \*\/ (.*)/',$comment,$match) == 1){
-		return '<span class="gray">Removed ['.$match[1].'] description: </span>'.shorten($match[2]).addTranslate($match[2]);
+		return '<span class="gray">Removed ['.$match[1].'] description: </span>'.shorten($match[2]);
 	}else if (preg_match('/\/\* wbsetlabel-remove:1\|(.*) \*\/ (.*)/',$comment,$match) == 1){
-		return '<span class="gray">Removed ['.$match[1].'] label: </span>'.shorten($match[2]).addTranslate($match[2]);
+		return '<span class="gray">Removed ['.$match[1].'] label: </span>'.shorten($match[2]);
 	}else if (preg_match('/\/\* wbsetaliases-remove:[0-9]+\|(.*) \*\/ (.*)/',$comment,$match) == 1){
-		return '<span class="gray">Removed ['.$match[1].'] alias: </span>'.shorten($match[2]).addTranslate($match[2]);
+		return '<span class="gray">Removed ['.$match[1].'] alias: </span>'.shorten($match[2]);
 	}else if (preg_match('/\/\* wbsetlabeldescriptionaliases:[0-9]+\|(.*) \*\/ (.*)/',$comment,$match) == 1){
-		return '<span class="gray">Changed ['.$match[1].'] label, description and aliases: </span>'.shorten($match[2]).addTranslate($match[2]);
+		return '<span class="gray">Changed ['.$match[1].'] label, description and aliases: </span>'.shorten($match[2]);
 	/* sitelinks */
 	}else if (preg_match('/\/\* wbsetsitelink-add:1\|(.*) \*\/ (.*)/',$comment,$match) == 1){
 		return '<span class="gray">Added link to ['.$match[1].']: </span>'.wikilink($match[1],$match[2]);

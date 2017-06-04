@@ -102,9 +102,9 @@ function loadTable(){
 					}else{
 						if (isRollbacker == 1) addRollback($(this).find('.buttons'),qid,$(this).attr('id')); //add rollback button
 					}
-					reg = comment.html().match(/<span class="gray">(Added|Changed) \[(.*)\] (label|description): <\/span>/);
+					reg = comment.html().match(/<span class="gray">(Added|Changed) \[(.*)\] (label|description): <\/span>(.*)/);
 					if (reg != null){
-                        checks(comment, qid, reg[2], reg[3], $(this).find('.translateIt').attr('data-translate'));
+                        checks(comment, qid, reg[2], reg[3], reg[4]);
                     }
 				}
 			});
@@ -472,20 +472,6 @@ $(document).ready(function(){
 			$("#hovercard2").show();
 			mover = 1;
 			$('.user:contains("'+usertext+'")').parent().parent().parent().css('background-color','#FFCE7B');
-		});
-	});
-
-	/* translate */
-	$('html').on('click','.translateIt', function(e){
-		e.preventDefault();
-		el = $(this);
-		$.ajax({
-			type: 'POST',
-			url: 'php/translate.php',
-			data: {string : $(this).attr('data-translate')}
-		})
-		.done(function(data){
-			el.replaceWith(' → '+data)
 		});
 	});
 
