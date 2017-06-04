@@ -95,7 +95,6 @@ function loadTable(){
 			$('tr').each(function(){
 				if ($(this).find('.title').attr('href') != undefined){
 					qid = $(this).attr('data-qid');
-					addTitleTag($(this).find('.title'),qid); // add alt tag with automated description
 					var comment = $(this).find('.comment')
 					if (comment.html().search('<span class="gray">Created new item: </span>') >-1){
 						addNumOfSitelinks(comment,qid); //add hint if no sitelinks are on item
@@ -112,26 +111,6 @@ function loadTable(){
 	});
 }
 
-/* add automated descriptions to alt tag
- *
- * @param  object el	object to add the alt tag
- * @param  string qid	affected item
- * @return void.
-*/
-function addTitleTag(el,qid){
-	$.ajax({
-		type: 'GET',
-		url: '../../autodesc',
-		data: {q : qid, lang : 'en', mode : 'short', format: 'json'}
-	})
-	.done(function(data){
-		if (data.result != '<i>Cannot auto-describe</i>'){
-			el.attr('title',data.result);
-		}else{
-			el.attr('title','no auto-description available');
-		}
-	});
-}
 
 /* add hint behind edit comment if no sitelinks are on item
  *
