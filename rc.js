@@ -63,8 +63,13 @@ function loadNav() {
     }
     content += '</ul></div>';
 
-    if (show == 'terms') {
-        content += '<form href="#" id="filter"><input type="text" value="' + filter + '" name="filter" class="inputtext" placeholder="enter language codes" /><input type="submit" value="filter" /></form>';
+    if (show == 'terms' || show == 'sitelinks') {
+        if (show == 'terms'){
+            placeholdertext = 'enter language codes';
+        } else {
+            placeholdertext = 'enter project codes';
+        }
+        content += '<form href="#" id="filter"><input type="text" value="' + filter + '" name="filter" class="inputtext" placeholder="' + placeholdertext + '" /><input type="submit" value="filter" /></form>';
     }
 
     $('.nav').html(content);
@@ -397,6 +402,12 @@ $(document).ready(function(){
                 pat = 'wbset(label|description|aliases)-(set|add|remove):[0-9]\\\\\|(' + filter + ')';
             }else{
                 pat = 'label|description|alias';
+            }
+        } else if (show == 'sitelinks'){
+            if (filter != ''){
+                pat = 'wbsetsitelink-(set|add|remove|add-both|set-both):[0-9]\\\\\|(' + filter + ')';
+            }else{
+                pat = 'wbsetsitelink';
             }
         }
         loadTable();
