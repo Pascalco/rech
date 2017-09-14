@@ -80,8 +80,8 @@ function parse($comment){
 */
 function urlFormatter($p, $val){
     global $formatter;
+    $comment = '';
     if (array_key_exists($p, $formatter)){
-        $comment = '';
         if ($formatter[$p]['type'] == 'Url'){
             $val = '<a href="'.$val.'">'.$val.'</a>';
         } else if ($formatter[$p]['type'] == 'CommonsMedia'){
