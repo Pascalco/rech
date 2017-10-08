@@ -153,11 +153,11 @@ function shorten($term){
 function parsedComment($comment){
     $comment = htmlspecialchars($comment);
 	/* claims */
-	if (preg_match('/\/\* wb(set|create)claim-create:[0-9]\|\|?[0-9]? \*\/ \[\[Property:(P[0-9]+)(\|P[0-9]+)?\]\]: (.*)/',$comment,$match) == 1){
+	if (preg_match('/\/\* wb(set|create)claim-create:[0-9]\|\|?[0-9]* \*\/ \[\[Property:(P[0-9]+)(\|P[0-9]+)?\]\]: (.*)/',$comment,$match) == 1){
 		return '<span class="gray">Created claim: </span><a href="//www.wikidata.org/wiki/P:'.$match[2].'">'.getLabel($match[2]).'</a>: '.urlFormatter($match[2],$match[4]);
 	}else if (preg_match('/\/\* wbremoveclaims-remove:1\| \*\/ \[\[Property:(P[0-9]+)(\|P[0-9]+)?\]\]: (.*)/',$comment,$match) == 1){
 		return '<span class="gray">Removed claim: </span><a href="//www.wikidata.org/wiki/P:'.$match[1].'">'.getLabel($match[1]).'</a>: '.urlFormatter($match[1],$match[3]);
-	}else if (preg_match('/\/\* wb(set|create)claim-update:[0-9]\|?\|[0-9]?\|?[0-9]? \*\/ \[\[Property:(P[0-9]+)(\|P[0-9]+)?\]\]: (.*)/',$comment,$match) == 1){
+	}else if (preg_match('/\/\* wb(set|create)claim-update:[0-9]\|?\|[0-9]*\|?[0-9]* \*\/ \[\[Property:(P[0-9]+)(\|P[0-9]+)?\]\]: (.*)/',$comment,$match) == 1){
 		return '<span class="gray">Changed claim: </span><a href="//www.wikidata.org/wiki/P:'.$match[2].'">'.getLabel($match[2]).'</a>: '.urlFormatter($match[2],$match[4]);
 	}else if (preg_match('/\/\* wbsetqualifier-add:[0-9]\| \*\/ \[\[Property:(P[0-9]+)(\|P[0-9]+)?\]\]: (.*)/',$comment,$match) == 1){
 		return '<span class="gray">Added qualifier: </span><a href="//www.wikidata.org/wiki/P:'.$match[1].'">'.getLabel($match[1]).'</a>: '.urlFormatter($match[1],$match[3]);
@@ -214,7 +214,9 @@ function parsedComment($comment){
 	}else if (preg_match('/\/\* wbcreateredirect:0\|\|(Q[0-9]+)\|(Q[0-9]+) \*\//',$comment,$match) == 1){
 		return '<span class="gray">Redirected to: </span><a href="//www.wikidata.org/wiki/'.$match[2].'">'.getLabel($match[2]).'</a>';
 	}else if (preg_match('/\/\* wbeditentity-override:0\| \*\/(.*)/',$comment,$match) == 1){
-		return '<span class="gray">Cleared an item: </span>'.parse($match[1]).'</a>';
+		return '<span class="gray">Cleared an item: </span>'.parse($match[1]);
+	}else if (preg_match('/\/\* undo:0\|\|([0-9]+)\|(.*) \*\/(.*)/',$comment,$match) == 1){
+		return '<span class="gray">Undo revision '.$match[1].' by '.$match[2].'</span>';
 	}else{
 		return parse($comment);
 	}
