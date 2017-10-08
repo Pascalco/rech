@@ -63,11 +63,13 @@ function loadNav() {
     }
     content += '</ul></div>';
 
-    if (show == 'terms' || show == 'sitelinks') {
+    if (show == 'terms' || show == 'sitelinks' || show == 'claims') {
         if (show == 'terms'){
             placeholdertext = 'enter language codes';
-        } else {
+        } else if (show == 'sitelinks') {
             placeholdertext = 'enter project codes';
+        } else {
+            placeholdertext = 'enter property ID';
         }
         content += '<form href="#" id="filter"><input type="text" value="' + filter + '" name="filter" class="inputtext" placeholder="' + placeholdertext + '" /><input type="submit" value="filter" /></form>';
     }
@@ -408,6 +410,12 @@ $(document).ready(function(){
                 pat = 'wbsetsitelink-(set|add|remove|add-both|set-both):[0-9]\\\\\|(' + filter + ')';
             }else{
                 pat = 'wbsetsitelink';
+            }
+        } else {
+            if (filter != ''){
+                pat = 'wb(set|create|remove)(claims?|qualifier|references?)-(set|add|create|update|remove)(.*)(' + filter + ')\]';
+            } else {
+                pat = 'claim|qualifier|reference'
             }
         }
         loadTable();
