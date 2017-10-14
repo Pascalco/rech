@@ -7,16 +7,19 @@
  * CC0 Public Domain Dedication.
 */
 
-var choiceShow = {'terms' : 'terms','claims' : 'claims','sitelinks' : 'sitelinks', 'merges' : 'merges', 'page moves' : 'moves', 'new items' : 'new', 'display all edits' : 'all'};
+var choiceEdittype = {'terms' : 'terms','claims' : 'claims','sitelinks' : 'sitelinks', 'merges' : 'merges', 'page moves' : 'moves', 'new items' : 'new', 'display all edits' : 'all'};
+var choiceItemtype = {'all items': -1, 'Top 10,000 items': 10000, 'pagepile': 'pp'}
 var choiceLimit = {'25 edits' : '25', '50 edits' : '50', '100 edits' : '100', '250 edits' : '250'};
 var choiceReload = {'1 minute': 60,  '5 minutes' : 300,  '10 minutes' : 600, 'no auto-reload': 0};
 var isRollbacker = 0;
 var username = '';
 var userlang = 'en';
-var show = 'all';
+var edittype = 'all';
 var filter = '';
+var pagepile = '';
 var pat = '.'
 var limit = '50';
+var itemtype = -1;
 var reloadtime = 0;
 
 /* load navigation menu
@@ -26,15 +29,28 @@ var reloadtime = 0;
 function loadNav() {
     var content = '<ul class="nav-list leftbox"> \
         <li class="nav-item">This is a filtered version of <a href="//www.wikidata.org/wiki/Special:RecentChanges" class="normallink">Special:RecentChanges</a> on Wikidata. Only unpatrolled edits are shown.</li> \
-        <li class="nav-item"><span>Select only </span><ul class="nav-submenu">';
-    for (var m in choiceShow) {
-        if(choiceShow[m] == show) {
+        <li class="nav-item"><span>Type of edits </span><ul class="nav-submenu">';
+    for (var m in choiceEdittype) {
+        if(choiceEdittype[m] == edittype) {
             content += '<li class="nav-submenu-item"><a class="inactive">' + m + '</a></li>';
         } else {
             content += '<li class="nav-submenu-item"><a class="show" href="#">' + m + '</a></li>';
         }
     }
-    content += '</ul></li><li class="nav-item"><span>Show last </span><ul class="nav-submenu">';
+    content += '</ul></li><li class="nav-item"><span>Type of items </span><ul class="nav-submenu">';
+    for (var m in choiceItemtype) {
+        if (choiceItemtype[m] == itemtype) {
+            content += '<li class="nav-submenu-item"><a class="inactive">' + m + '</a></li>';
+        } else {
+            content += '<li class="nav-submenu-item"><a class="itemtype" href="#">' + m + '</a></li>';
+        }
+    }    
+    
+    if (itemtype == 'pp'){
+        content += '<form href="#" id="pagepile"><input type="text" value="' + pagepile + '" name="pagepile" class="inputtext" placeholder="PagePile ID" /><input type="submit" value="filter" /></form>';       
+    }    
+    
+    content += '</ul></li><li class="nav-item"><span>Number of edits </span><ul class="nav-submenu">';
     for (var m in choiceLimit) {
         if (choiceLimit[m] == limit) {
             content += '<li class="nav-submenu-item"><a class="inactive">' + m + '</a></li>';
@@ -63,16 +79,17 @@ function loadNav() {
     }
     content += '</ul></div>';
 
-    if (show == 'terms' || show == 'sitelinks' || show == 'claims') {
-        if (show == 'terms'){
+    if (edittype == 'terms' || edittype == 'sitelinks' || edittype == 'claims') {
+        if (edittype == 'terms'){
             placeholdertext = 'enter language codes';
-        } else if (show == 'sitelinks') {
+        } else if (edittype == 'sitelinks') {
             placeholdertext = 'enter project codes';
         } else {
             placeholdertext = 'enter property ID';
         }
         content += '<form href="#" id="filter"><input type="text" value="' + filter + '" name="filter" class="inputtext" placeholder="' + placeholdertext + '" /><input type="submit" value="filter" /></form>';
     }
+
 
     $('.nav').html(content);
 
@@ -96,7 +113,7 @@ function loadNav() {
 function loadTable(){
 	$('#load').show()
 	$('#show').fadeOut('fast', function(){
-		$('#show').load('php/table.php?limit='+limit+'&pat='+pat+'&userlang='+userlang,function(){
+		$('#show').load('php/table.php?limit='+limit+'&pat='+pat+'&userlang='+userlang+'&itemtype='+itemtype+'&pagepile='+pagepile,function(){
 			$("#load").fadeOut('fast');
 			$("#show").fadeIn('slow');
 			$('tr').each(function(){
@@ -357,11 +374,11 @@ $(document).ready(function(){
         loadTable();
     });
 
-	/* set query type */
+	/* set query edit type */
 	$('html').on('click', '.show', function(e) {
         e.preventDefault();
-		show = choiceShow[$(this).text()];
-        switch(show){
+		edittype = choiceEdittype[$(this).text()];
+        switch(edittype){
             case 'all': pat='.';break;
             case 'terms': pat='label|description|alias';break;
             case 'claims': pat='claim|qualifier|reference';break;
@@ -375,6 +392,16 @@ $(document).ready(function(){
         loadTable();
 	});
 
+	/* set query item type */
+	$('html').on('click', '.itemtype', function(e) {
+        e.preventDefault();
+        itemtype = choiceItemtype[$(this).text()];            
+        if (itemtype != 'pp'){
+            loadTable();
+        }
+        loadNav();
+	});    
+    
 	/* set query limit */
 	$('html').on('click', '.limit', function(e) {
         e.preventDefault();
@@ -399,13 +426,13 @@ $(document).ready(function(){
     $('html').on('submit', '#filter', function(e) {
         e.preventDefault();
         filter = $("[name='filter']").val().replace(/\s*,\s*/g, '|');
-        if (show == 'terms'){
+        if (edittype == 'terms'){
             if (filter != ''){
                 pat = 'wbset(label|description|aliases)-(set|add|remove):[0-9]\\\\\|(' + filter + ')';
             }else{
                 pat = 'label|description|alias';
             }
-        } else if (show == 'sitelinks'){
+        } else if (edittype == 'sitelinks'){
             if (filter != ''){
                 pat = 'wbsetsitelink-(set|add|remove|add-both|set-both):[0-9]\\\\\|(' + filter + ')';
             }else{
@@ -420,6 +447,12 @@ $(document).ready(function(){
         }
         loadTable();
     });
+    
+    $('html').on('submit', '#pagepile', function(e) {
+        e.preventDefault();
+        pagepile = $("[name='pagepile']").val()
+        loadTable();
+    });    
 
 	/* reload page */
 	$('html').on('click', '.reload', function(e) {

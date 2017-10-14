@@ -17,6 +17,9 @@ include("mainfunc.php");
 $str = file_get_contents("../statements/statements.json");
 $formatter = json_decode($str, true);
 
+$importantItems = file_get_contents("../statements/importantItems.dat");
+
+
 /* START MAIN PART */
 echo '<div id="hovercard"></div><div id="hovercard2"></div><table id="main">';
 echo '<tr class="rightside"><td colspan="5"><a class="reload" href="#" target="_parent">reload</a></td></tr>';
@@ -28,7 +31,19 @@ if (isset($res->query->userinfo->options->timecorrection)){
 }else{
 	$timecorrection = 0;
 }
-$result = mysqli_query($conn, "SELECT rc_this_oldid, rc_timestamp, rc_user_text, rc_title, rc_comment, rc_old_len, rc_new_len FROM recentchanges WHERE rc_patrolled=0 AND rc_namespace=0 AND rc_comment REGEXP '".$_GET['pat']."' ORDER BY rc_timestamp DESC LIMIT ".$_GET['limit']);
+
+$addQuery = '';
+if ($_GET['itemtype'] > 0){
+    $addQuery = ' AND rc_title IN ('.$importantItems.') ';
+} else if ($_GET['itemtype'] == 'pp'){
+    $context  = stream_context_create(array('http' => array('user_agent' => 'reCh tool')));    
+    $str = file_get_contents('https://tools.wmflabs.org/pagepile/api.php?id='.$_GET['pagepile'].'&action=get_data&doit&format=json', false, $context);    
+    $pagepile = json_decode($str, true);
+    if ($pagepile['wiki'] == 'wikidatawiki'){
+        $addQuery = ' AND rc_title IN ("'.implode('","', $pagepile['pages']).'") ';
+    }
+}
+$result = mysqli_query($conn, "SELECT rc_this_oldid, rc_timestamp, rc_user_text, rc_title, rc_comment, rc_old_len, rc_new_len FROM recentchanges WHERE rc_patrolled=0 AND rc_namespace=0 AND rc_comment REGEXP '".$_GET['pat']."' ".$addQuery." ORDER BY rc_timestamp DESC LIMIT ".$_GET['limit']);  
 
 /* request all labels */
 $qarray = array();

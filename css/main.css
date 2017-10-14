@@ -186,6 +186,10 @@ form{
 	white-space:nowrap;
 }
 
+#pagepile{
+    display: inline;
+}
+
 
 @media only screen and (max-width:1024px) {
 	html {
