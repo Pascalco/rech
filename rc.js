@@ -44,12 +44,12 @@ function loadNav() {
         } else {
             content += '<li class="nav-submenu-item"><a class="itemtype" href="#">' + m + '</a></li>';
         }
-    }    
-    
+    }
+
     if (itemtype == 'pp'){
-        content += '<form href="#" id="pagepile"><input type="text" value="' + pagepile + '" name="pagepile" class="inputtext" placeholder="PagePile ID" /><input type="submit" value="filter" /></form>';       
-    }    
-    
+        content += '<form href="#" id="pagepile"><input type="text" value="' + pagepile + '" name="pagepile" class="inputtext" placeholder="PagePile ID" /><input type="submit" value="filter" /></form>';
+    }
+
     content += '</ul></li><li class="nav-item"><span>Number of edits </span><ul class="nav-submenu">';
     for (var m in choiceLimit) {
         if (choiceLimit[m] == limit) {
@@ -149,8 +149,10 @@ function addNumOfSitelinks(el,qid){
 		ids : qid,
 		format: 'json'
 	},function(data){
-		if (data.entities[qid].sitelinks == undefined){
-			el.append(' <span class="red"><small>no sitelinks</small></span>');
+		if (data.entities[qid].sitelinks != undefined){
+            if ($.isEmptyObject(data.entities[qid].sitelinks)){
+                el.append(' <span class="red"><small>no sitelinks</small></span>');
+            }
 		}
 	});
 }
@@ -352,8 +354,29 @@ function patrol(qid,revid,action,usertext){
 	});
 }
 
+/* read parameters from URL
+ *
+ * @return void.
+*/
+
+function prefill() {
+    window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/g, function(m, key, value) {
+        if (key == 'limit'){
+            limit = value;
+        } else if (key == 'pat'){
+            pat = value;
+        } else if (key == 'itemtype'){
+            itemtype = value;
+        } else if (key == 'pagepile'){
+            pagepile = value;
+        }
+    });
+}
+
 $(document).ready(function(){
 	var mover = 0;
+
+    prefill();
 
     $.ajax({
         type: 'GET',
@@ -395,13 +418,13 @@ $(document).ready(function(){
 	/* set query item type */
 	$('html').on('click', '.itemtype', function(e) {
         e.preventDefault();
-        itemtype = choiceItemtype[$(this).text()];            
+        itemtype = choiceItemtype[$(this).text()];
         if (itemtype != 'pp'){
             loadTable();
         }
         loadNav();
-	});    
-    
+	});
+
 	/* set query limit */
 	$('html').on('click', '.limit', function(e) {
         e.preventDefault();
@@ -447,12 +470,12 @@ $(document).ready(function(){
         }
         loadTable();
     });
-    
+
     $('html').on('submit', '#pagepile', function(e) {
         e.preventDefault();
         pagepile = $("[name='pagepile']").val()
         loadTable();
-    });    
+    });
 
 	/* reload page */
 	$('html').on('click', '.reload', function(e) {
