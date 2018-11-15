@@ -36,21 +36,21 @@ $addQuery = '';
 if ($_GET['itemtype'] > 0){
     $addQuery = ' AND rc_title IN ('.$importantItems.') ';
 } else if ($_GET['itemtype'] == 'pp'){
-    $context  = stream_context_create(array('http' => array('user_agent' => 'reCh tool')));    
-    $str = file_get_contents('https://tools.wmflabs.org/pagepile/api.php?id='.$_GET['pagepile'].'&action=get_data&doit&format=json', false, $context);    
+    $context  = stream_context_create(array('http' => array('user_agent' => 'reCh tool')));
+    $str = file_get_contents('https://tools.wmflabs.org/pagepile/api.php?id='.$_GET['pagepile'].'&action=get_data&doit&format=json', false, $context);
     $pagepile = json_decode($str, true);
     if ($pagepile['wiki'] == 'wikidatawiki'){
         $addQuery = ' AND rc_title IN ("'.implode('","', $pagepile['pages']).'") ';
     }
 }
-$result = mysqli_query($conn, "SELECT rc_this_oldid, rc_timestamp, rc_user_text, rc_title, rc_comment, rc_old_len, rc_new_len FROM recentchanges WHERE rc_patrolled=0 AND rc_namespace=0 AND rc_comment REGEXP '".$_GET['pat']."' ".$addQuery." ORDER BY rc_timestamp DESC LIMIT ".$_GET['limit']);  
+$result = mysqli_query($conn, "SELECT rc_this_oldid, rc_timestamp, rc_user_text, rc_title, comment_text, rc_old_len, rc_new_len FROM recentchanges JOIN comment ON rc_comment_id = comment_id WHERE rc_patrolled=0 AND rc_namespace=0 AND comment_text REGEXP '".$_GET['pat']."' ".$addQuery." ORDER BY rc_timestamp DESC LIMIT ".$_GET['limit']);
 
 /* request all labels */
 $qarray = array();
 while ($m = mysqli_fetch_assoc($result)){
 	array_push($qarray,$m['rc_title']);
-	if (preg_match('/\[\[Property:(P[0-9]+)(\||\])/',$m['rc_comment'],$match) == 1)array_push($qarray,$match[1]);
-	if (preg_match('/\[\[(Q[0-9]+)(\||\])/',$m['rc_comment'],$match) == 1)array_push($qarray,$match[1]);
+	if (preg_match('/\[\[Property:(P[0-9]+)(\||\])/',$m['comment_text'],$match) == 1)array_push($qarray,$match[1]);
+	if (preg_match('/\[\[(Q[0-9]+)(\||\])/',$m['comment_text'],$match) == 1)array_push($qarray,$match[1]);
 }
 $qarray = array_unique($qarray);
 for($i=0;$i<ceil(count($qarray)/50);$i++)requestLabels(implode('|',array_slice($qarray,$i*50,50)));
@@ -71,7 +71,7 @@ while ($m = mysqli_fetch_assoc($result)){
 	echo '<tr id="'.$m['rc_this_oldid'].'" data-qid="'.$m['rc_title'].'">';
 	echo '<td><a class="title" href="//www.wikidata.org/wiki/'.$m['rc_title'].'">'.$label.' <small>('.$m['rc_title'].')</small></a>';
 	if ($redirect) echo ' <small>redirects to <a href="//www.wikidata.org/wiki/'.$redirect.'">'.$redirect.'</a></small>';
-	echo '</td><td><span class="comment">'.parsedComment($m['rc_comment']).'</span>';
+	echo '</td><td><span class="comment">'.parsedComment($m['comment_text']).'</span>';
 	if ($size>0) echo ' (<span class="green" dir="ltr">+'.$size.'</span>)</td>';
 	else echo ' (<span class="red" dir="ltr">'.$size.'</span>) </td>';
 	echo '<td><div class="nlb"><a class="user" href="#">'.$m['rc_user_text'].'</a></div></td>';
