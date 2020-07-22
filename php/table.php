@@ -8,7 +8,6 @@
  * CC0 Public Domain Dedication.
 **/
 include("../../connect.inc.php");
-include("../../oauth.php");
 
 $userlang = $_GET['userlang'];
 include("mainfunc.php");
@@ -25,12 +24,13 @@ echo '<div id="hovercard"></div><div id="hovercard2"></div><table id="main">';
 echo '<tr class="rightside"><td colspan="5"><a class="reload" href="#" target="_parent">reload</a></td></tr>';
 
 $olddate = 0;
-if (isset($res->query->userinfo->options->timecorrection)){
+$timecorrection = 0;
+/*if (isset($res->query->userinfo->options->timecorrection)){
 	$arr = explode('|',$res->query->userinfo->options->timecorrection);
 	$timecorrection = $arr[1]*60;
 }else{
 	$timecorrection = 0;
-}
+}*/
 
 $addQuery = '';
 if ($_GET['itemtype'] > 0){
@@ -43,7 +43,7 @@ if ($_GET['itemtype'] > 0){
         $addQuery = ' AND rc_title IN ("'.implode('","', $pagepile['pages']).'") ';
     }
 }
-$result = mysqli_query($conn, "SELECT rc_this_oldid, rc_timestamp, rc_user_text, rc_title, comment_text, rc_old_len, rc_new_len FROM recentchanges JOIN comment ON rc_comment_id = comment_id WHERE rc_patrolled=0 AND rc_namespace=0 AND comment_text REGEXP '".$_GET['pat']."' ".$addQuery." ORDER BY rc_timestamp DESC LIMIT ".$_GET['limit']);
+$result = mysqli_query($conn, "SELECT rc_this_oldid, rc_timestamp, rc_title, rc_old_len, rc_new_len, actor_name, comment_text FROM recentchanges JOIN comment ON rc_comment_id = comment_id JOIN actor ON rc_actor = actor_id WHERE rc_patrolled=0 AND rc_namespace=0 AND comment_text REGEXP '".$_GET['pat']."' ".$addQuery." ORDER BY rc_timestamp DESC LIMIT ".$_GET['limit']);
 
 /* request all labels */
 $qarray = array();
@@ -74,7 +74,7 @@ while ($m = mysqli_fetch_assoc($result)){
 	echo '</td><td><span class="comment">'.parsedComment($m['comment_text']).'</span>';
 	if ($size>0) echo ' (<span class="green" dir="ltr">+'.$size.'</span>)</td>';
 	else echo ' (<span class="red" dir="ltr">'.$size.'</span>) </td>';
-	echo '<td><div class="nlb"><a class="user" href="#">'.$m['rc_user_text'].'</a></div></td>';
+	echo '<td><div class="nlb"><a class="user" href="#">'.$m['actor_name'].'</a></div></td>';
 	echo '<td>'.date("H:i",$time).'</td>';
 	echo '<td><div class="nlb buttons"><a class="diffview blue" href="#">diff</a>';
 	echo '<a class="edit green" href="#">patrol</a>';

@@ -21,7 +21,7 @@ var pat = '.'
 var limit = '50';
 var itemtype = -1;
 var reloadtime = 0;
-
+var jwttoken = '';
 /* load navigation menu
  *
  * @return void.
@@ -71,11 +71,11 @@ function loadNav() {
     content += '<ul class="nav-list rightbox">';
 
     if (username != '') {
-        content += '<li class="nav-item"><span><a href="../index.php?action=logout" target="_parent">logout</a></span></li> \
+        content += '<li class="nav-item"><span><a href="https://plnode.toolforge.org/logout?token='+ jwttoken +'" target="_parent">logout</a></span></li> \
             <li class="nav-item"><span><a href="//www.wikidata.org/wiki/Special:Contributions/' + username + '">your edits</a></span></li> \
             <li class="nav-item"><span><a href="//www.wikidata.org/w/index.php?title=Special:Log&type=patrol&user=' + username + '">your patrols</a></span></li>';
     } else {
-        content += '<li class="nav-item"><span><a href="../index.php?action=authorize">login</a></span></li>';
+        content += '<li class="nav-item"><span><a href="https://plnode.toolforge.org/authorize?landingpage=https://pltools.toolforge.org/rech/landingpage.php">login</a></span></li>';
     }
     content += '</ul></div>';
 
@@ -309,7 +309,7 @@ function addRollback(el,qid,revid){
 		format: 'json'
 	},function(data){
 		for (m in data.query.pages){
-			if (data.query.pages[m].revisions[0].revid == revid){
+			if ('revisions' in data.query.pages[m] && data.query.pages[m].revisions[0].revid == revid){
 				el.append('<a class="edit violet" href="#">rollback</a>');
 			}
 		}
@@ -325,22 +325,26 @@ function addRollback(el,qid,revid){
  * @return void.
 */
 
-function patrol(qid,revid,action,usertext){
+function patrol(qid, revid, action, usertext){
 	if (typeof usertext === "undefined")usertext = '';
 	$.ajax({
 		type: 'GET',
-		url: '../oauth.php',
-		data: {action : action, revid : revid, title : qid, usertext : usertext}
+		url: 'https://plnode.toolforge.org/edit',
+		data: {action : action, revid : revid, entity : qid, user : usertext, token: jwttoken}
 	})
 	.done(function(data){
-		if (data == 'patrolled'){
+        if ('error' in data){
+            $("#hovercard").html(data.error.info).show();
+        } else if (action == 'undo'){
+            patrol(qid, revid, 'patrol', usertext);
+        } else if (action == 'patrol'){
 			$('#'+revid).fadeOut('slow',function(){
 				$('#'+revid).remove();
 			});
-		}else if(data.substr(0,8) == 'rollback'){
+		} else if(action == 'rollback'){
 			$('tr').each(function(){
 				if ($(this).find('.title').attr('href') != undefined){
-					if ($(this) == data.substr(9)) return false;
+					//if ($(this) == data.substr(9)) return false;
 					if ($(this).attr('data-qid') == qid){
 						$(this).fadeOut('slow',function(){
 							$(this).remove();
@@ -348,10 +352,23 @@ function patrol(qid,revid,action,usertext){
 					}
 				}
 			});
-		}else{
-			$("#hovercard").html(data).show();
 		}
 	});
+}
+
+/* patrols the first revision stored in a list
+ *
+ * @return void.
+*/
+
+function patrolFromList(list){
+    setTimeout(() => {
+        patrol(list[0][0], list[0][1], 'patrol');
+        list.shift();
+        if (list.length > 0){
+            patrolFromList(list);
+        }
+    }, 500);
 }
 
 /* read parameters from URL
@@ -373,24 +390,44 @@ function prefill() {
     });
 }
 
+
+/* read cookies
+ *
+ * @param  string name		name of cookie
+ * @return string           value of cookie
+*/
+
+function getCookie(name) {
+  var nameEQ = name + "=";
+  var ca = document.cookie.split(';');
+  for (var i = 0; i < ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+  }
+  return null;
+}
+
+
 $(document).ready(function(){
 	var mover = 0;
 
     prefill();
 
+    jwttoken = getCookie('plnodeJwt');
     $.ajax({
         type: 'GET',
-        url: '../oauth.php',
-        data: {action : 'userinfo'}
+        url: 'https://plnode.toolforge.org/profile',
+        data: {token : jwttoken}
    })
    .done(function(data){
-        if (!('error' in data)){
-            if (data.query.userinfo.rights.indexOf('rollback') > -1){
+        if ('username' in data && data.username !== 0){
+            if ('rights' in data && data.rights.indexOf('rollback') > -1){
                 isRollbacker = 1;
             }
-            username = data.query.userinfo.name;
-            if ('language' in data.query.userinfo.options) {
-                userlang = data.query.userinfo.options.language;
+            username = data.username;
+            if ('options' in data && 'language' in data.options) {
+                userlang = data.options.language;
             }
         }
         loadNav();
@@ -532,26 +569,30 @@ $(document).ready(function(){
 	/* patrol all edits (activated if edits sitelinks or moves are selected) */
 	$('html').on('click','.patrolall',function(e){
 		e.preventDefault();
+        let patrolList = [];
 		$('tr').each(function(){
 			if ($(this).find('.title').attr('href') != undefined){
 				qid = $(this).find('.title').attr('href').substring(24);
 				revid = $(this).attr('id');
-				patrol(qid,revid,'patrol');
+                patrolList.push([qid, revid]);
 			}
 		});
+        patrolFromList(patrolList);
 	});
 
 	/* patrol all user edits */
 	$('html').on('click','.patrolalluser',function(e){
 		e.preventDefault();
 		usertext = $(this).attr('data-usertext');
+        let patrolList = [];
 		$('.user:contains("'+usertext+'")').parent().parent().parent().each(function(){
 			if ($(this).find('.title').attr('href') != undefined){
 				qid = $(this).find('.title').attr('href').substring(24);
 				revid = $(this).attr('id');
-				patrol(qid,revid,'patrol');
+                patrolList.push([qid, revid]);
 			}
 		});
+        patrolFromList(patrolList);
 	});
 
 	/* patrol or undo */
