@@ -13,6 +13,7 @@
 <meta charset="utf-8">
 <link href="css/main.css" type="text/css" rel="stylesheet">
 <link href="css/navi.css" type="text/css" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="//tools-static.wmflabs.org/static/jquery/1.11.0/jquery.min.js"></script>
 <?php
     $commit = trim(file_get_contents( '../rech/.git/refs/heads/master' ));
